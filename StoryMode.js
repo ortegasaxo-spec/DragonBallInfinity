@@ -172,6 +172,7 @@
   ];
 
   let active = false;
+  let storyEndingCredits = false;
   let currentChapterIndex = -1;
   let storyOverlay = null;
   let storyImage = null;
@@ -454,33 +455,103 @@ chapterRuntime = {
     return beginChapter(chapters[currentChapterIndex]);
   }
 
+function showStoryCompletedScreen(){
+
+    const overlay = document.createElement("div");
+
+    overlay.id = "storyCompletedOverlay";
+
+    overlay.style.cssText = `
+        position:fixed;
+        inset:0;
+        background:#000;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        z-index:50000;
+    `;
+
+    overlay.innerHTML = `
+        <div style="
+            text-align:center;
+            color:white;
+            font-family:Arial;
+        ">
+            <h1>HAS COMPLETADO</h1>
+
+            <h2>EL MODO HISTORIA</h2>
+
+            <br>
+
+            <p>¿Qué deseas hacer?</p>
+
+            <br>
+
+            <button id="newGamePlusBtn"
+                style="font-size:28px;padding:18px 50px;margin:15px;">
+                NEW GAME+
+            </button>
+
+            <br>
+
+            <button id="returnTitleBtn"
+                style="font-size:28px;padding:18px 50px;">
+                MENÚ PRINCIPAL
+            </button>
+
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    document.getElementById("newGamePlusBtn").onclick = () => {
+
+    overlay.remove();
+
+    chapterManager.startNewGamePlus();
+
+};
+
+    document.getElementById("returnTitleBtn").onclick = () => {
+
+        overlay.remove();
+
+        chapterManager.exitToTitle();
+
+    };
+
+}
+
  function nextChapter(){
 
     if(!active) return null;
 
-    if(currentChapterIndex >= chapters.length - 1){
+   if(currentChapterIndex >= chapters.length - 1){
 
-        CreditsScene.begin();
+    storyEndingCredits = true;
 
-        const waitCredits = setInterval(()=>{
+    window.storyEndingCredits = () => storyEndingCredits;
+window.clearStoryEndingCredits = () => { storyEndingCredits = false; };
 
-            if(window.storyCreditsFinished){
+   CreditsScene.begin();
 
-                clearInterval(waitCredits);
+    const waitCredits = setInterval(()=>{
 
-                window.storyCreditsFinished = false;
+        if(window.storyCreditsFinished){
 
-                currentChapterIndex = 0;
+            clearInterval(waitCredits);
 
-                return beginChapter(chapters[currentChapterIndex]);
+            window.storyCreditsFinished = false;
 
-            }
+            showStoryCompletedScreen();
 
-        },100);
+        }
 
-        return null;
+    },100);
 
-    }
+    return null;
+
+}
 
     currentChapterIndex++;
 
@@ -496,6 +567,8 @@ chapterRuntime = {
   function isActive(){
     return active;
   }
+
+  window.showStoryCompletedScreen = showStoryCompletedScreen;
 
   global.StoryMode = {
     start,

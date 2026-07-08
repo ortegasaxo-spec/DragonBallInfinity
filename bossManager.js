@@ -51,19 +51,36 @@
     return ((index % bossSequence.length) + bossSequence.length) % bossSequence.length;
   }
 
-  // Boss HP calculation constants
-  const BASE_RADITZ_HP = 600; // Raditz base HP is double the previous 300
-  const MULTIPLIER_THRESHOLD = 7;
-  const SMALL_MULT = 1.10;
-  const LARGE_MULT = 1.33;
-  const CYCLE_HP_SCALE = 0.35;
+ // Boss HP calculation constants
+const BASE_RADITZ_HP = 600;
+
+// Hasta A-17 (índice 11) se mantiene el escalado fuerte.
+// Desde A-18 (índice 9) se reduce al 10%.
+const MULTIPLIER_THRESHOLD = 8;
+
+const SMALL_MULT = 1.10;
+const LARGE_MULT = 1.10;
+
+const CYCLE_HP_SCALE = 0.10;
+
+function getStoryLoopMultiplier(){
+
+    if(storyLoop <= 1)
+        return 1;
+
+    return 1.10 + (storyLoop - 2) * 0.05;
+
+}
 
   function getBossHp(sequenceIndex, cycle){
     let hp = BASE_RADITZ_HP;
     for (let i = 1; i <= sequenceIndex; i++) {
       hp *= (i <= MULTIPLIER_THRESHOLD) ? SMALL_MULT : LARGE_MULT;
     }
-    return Math.floor(hp * (1 + cycle * CYCLE_HP_SCALE));
+
+  const loopMultiplier = getStoryLoopMultiplier();
+
+  return Math.floor(hp * (1 + cycle * CYCLE_HP_SCALE) * loopMultiplier);  
   }
 
   function getBossSpecialKey(bossName){

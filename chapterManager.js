@@ -101,7 +101,7 @@
       },
       upgradeLevels: Object.assign({}, upgradeLevels),
       superTechLevels: Object.assign({}, superTechLevels),
-      xp, lvl, xpNeed, kills, bossSpawnedLevel, bossCycle, bossIndex,
+      xp, lvl, xpNeed, kills, storyLoop, bossSpawnedLevel, bossCycle, bossIndex,
       bossNextSpawnDelay: Math.max(0, bossNextSpawnAt - getCurrentTime()),
       time: getRunTime(),
       savedAt: getCurrentTime(),
@@ -128,6 +128,7 @@
     lvl = data.lvl || 1;
     xpNeed = data.xpNeed || 10;
     kills = data.kills || 0;
+    storyLoop = data.storyLoop || 1;
     bossSpawnedLevel = data.bossSpawnedLevel || 0;
     bossIndex = data.bossIndex || 0;
     bossCycle = getBossCycleForIndex(bossIndex);
@@ -172,6 +173,38 @@
     if (soundSettings.enabled) audioManager.playBgm();
     if (selectedGameMode === 'story' && window.StoryMode) window.StoryMode.start();
   }
+
+  function startNewGamePlus(){
+
+    storyLoop++;
+
+    if(window.currentChapter !== undefined)
+        window.currentChapter = 1;
+
+    if(window.StoryMode && window.StoryMode.start){
+        window.StoryMode.start();
+    }
+
+    resetRunState();
+
+    gameStarted = true;
+    gameOver = false;
+    paused = false;
+    pauseMenuOpen = false;
+
+    if(startOverlay)
+        startOverlay.style.display = "none";
+
+    if(uiElement)
+        uiElement.style.display = "block";
+
+    audioManager.pauseStartMusic();
+    audioManager.applySettings(soundSettings);
+
+    if(soundSettings.enabled)
+        audioManager.playBgm();
+
+}
 
   function exitToTitle(){
     if (uiElement) uiElement.style.display = 'none';
@@ -414,6 +447,7 @@ document.getElementById('volumeSlider').oninput = e => {
     initMenus,
     renderStartMenu,
     startNewGame,
+    startNewGamePlus,
     exitToTitle,
     saveGame,
     loadGame,

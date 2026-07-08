@@ -28,6 +28,10 @@ console.log("TECLA", e.key, gameOver, initials);
 
 let kills=0;
 let bossKills=0;
+
+// Número de vuelta del Modo Historia (New Game+)
+let storyLoop = 1;
+
 let gameStarted=false;
 let selectedUpgrade=0;
 window.gameSpeed = 1;
@@ -2098,20 +2102,94 @@ function resetStoryChapterState(){
 }
 window.resetStoryChapterState = resetStoryChapterState;
 
+function resetPlayerProgress(){
+
+    Object.assign(
+        player,
+        {
+            x: canvas.width / 2,
+            y: canvas.height / 2,
+            r: getDefaultPlayerRadius()
+        },
+        basePlayer
+    );
+
+    Object.keys(upgradeLevels).forEach(k => upgradeLevels[k] = 0);
+
+    Object.keys(superTechLevels).forEach(k => superTechLevels[k] = 0);
+
+    xp = 0;
+    lvl = 1;
+    xpNeed = 10;
+    kills = 0;
+
+    dragonballCount = 0;
+    extraLives = 0;
+
+}
+
+function resetRunState(){
+
+    if(window.__longRunAudit)
+        window.__longRunAudit.reset();
+
+    clearActiveObjects();
+
+    lastShot = 0;
+
+    bossSpawnedLevel = 0;
+    bossCycle = 0;
+    bossIndex = 0;
+    bossNextSpawnAt = 0;
+
+    rankSaved = false;
+    window.__rankSaved = false;
+
+    initials = "";
+
+    shieldOrbs = [];
+
+    kienzanShots = [];
+    kienzanCooldownAt = 0;
+
+    kiExplosionEffect = null;
+    dodonpaCooldownAt = 0;
+    kiExplosionCooldownAt = 0;
+
+    absorbkiShieldUntil = 0;
+    absorbkiTriggerReady = true;
+    absorbkiTriggeredCount = 0;
+    absorbkiAbsorbedDamage = 0;
+
+    dragonDashCooldownAt = 0;
+
+    player.dashFromX = 0;
+    player.dashToX = 0;
+    player.dashStartAt = 0;
+    player.dashUntil = 0;
+
+    currentSceneIndex = 0;
+    sceneSwitchAt = getCurrentTime() + SCENE_DURATION_MS;
+
+    gameOver = false;
+    paused = false;
+    pauseMenuOpen = false;
+
+    playerFacingLeft = false;
+
+    survivalStart = getCurrentTime();
+
+    if(window.__perf)
+        window.__perf.spawnAcc = 0;
+
+}
+
 function resetGameState(){
- if(window.__longRunAudit) window.__longRunAudit.reset();
- Object.assign(player,{x:canvas.width/2,y:canvas.height/2,r:getDefaultPlayerRadius()},basePlayer);
- Object.keys(upgradeLevels).forEach(k=>upgradeLevels[k]=0);
- Object.keys(superTechLevels).forEach(k=>superTechLevels[k]=0);
- clearActiveObjects();
- xp=0; lvl=1; xpNeed=10; kills=0; lastShot=0; bossSpawnedLevel=0; bossCycle=0; bossIndex=0; bossNextSpawnAt=0; rankSaved=false; window.__rankSaved=false; initials='';
- dragonballCount=0; extraLives=0; shieldOrbs=[]; kienzanShots=[]; kienzanCooldownAt=0; kiExplosionEffect=null; dodonpaCooldownAt=0; kiExplosionCooldownAt=0; absorbkiShieldUntil=0; absorbkiTriggerReady=true; absorbkiTriggeredCount=0; absorbkiAbsorbedDamage=0;
-  dragonDashCooldownAt=0; player.dashFromX=0; player.dashToX=0; player.dashStartAt=0; player.dashUntil=0;
-  // reset scene cycling (Infinity Mode)
-  currentSceneIndex = 0;
-  sceneSwitchAt = getCurrentTime() + SCENE_DURATION_MS;
- gameOver=false; paused=false; pauseMenuOpen=false; playerFacingLeft=false; survivalStart=getCurrentTime();
- if(window.__perf) window.__perf.spawnAcc=0;
+
+    resetPlayerProgress();
+
+    resetRunState();
+
 }
 
 function saveGame(){

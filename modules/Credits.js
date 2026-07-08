@@ -5,7 +5,7 @@ let running = false;
 let startedAt = 0;
 let phase = 0;
 let phaseStartedAt = 0;
-
+let returnToMenuAfterCredits = true;
 let bossIndex = 0;
 let pairIndex = 0;
 
@@ -17,7 +17,7 @@ const MESSAGE_LIST = [
     "Programación realizada mediante IA",
     "Diseño del gameplay realizado con IA",
     "Recursos gráficos generados con IA",
-    "Recursos sonoros generados con IA",
+    "Recursos sonoros extraídos de Youtube mediante IA",
     "Optimización realizada con IA",
     "Balance del juego realizado con IA",
     "Testing realizado mediante IA",
@@ -29,7 +29,7 @@ const MESSAGE_LIST = [
 const HERO_PAIRS = [
     ["Goku","SSJ"],
     ["SSJ3","SSJGod"],
-    ["SSJBlue","UltraInstinto"],
+    ["SSJBlue","Ultra Instinto"],
     ["Baba","Shenron"]
 ];
 
@@ -39,7 +39,7 @@ const CREDIT_MESSAGES = [
     "Juego creado íntegramente con IA",
     "Programación realizada con IA",
     "Arte generado con IA",
-    "Recursos sonoros generados con IA",
+    "Recursos sonoros extraídos de Youtube mediante IA",
     "Diseño y desarrollo realizado con IA",
     "Dragon Ball Infinity"
 ];
@@ -120,6 +120,21 @@ creditsMusic.volume = 1;
 
 function exitCredits(){
 
+    console.log("EXIT CREDITS");
+
+
+if(window.storyEndingCredits()){
+
+    window.clearStoryEndingCredits();
+
+    stop();
+
+    window.showStoryCompletedScreen();
+
+    return;
+
+}
+
     stop();
 
     if(window.startOverlay){
@@ -157,7 +172,11 @@ function onClick(){
 
 }
 
+
+
 function begin(){
+
+  
 
   console.log("BEGIN CREDITS");
 
@@ -189,19 +208,7 @@ function stop(){
     running = false;
 
     creditsMusic.pause();
-creditsMusic.currentTime = 0;
-
-    if(typeof startOverlay !== "undefined"){
-
-        startOverlay.style.display = "block";
-
-    }
-
-    if(window.chapterManager){
-
-        chapterManager.renderStartMenu();
-
-    }
+    creditsMusic.currentTime = 0;
 
 }
 
@@ -475,6 +482,7 @@ if(elapsed < 100){
     if(phase===1){
 
         const pair=HERO_PAIRS[pairIndex];
+        console.log(pairIndex, pair);
 
         const left=heroSprites[pair[0]];
         const right=heroSprites[pair[1]];
@@ -490,7 +498,7 @@ if(elapsed < 100){
 
         ctx.globalAlpha=alpha;
 
-        if(left.complete){
+        if(left && left.complete){
 
             ctx.drawImage(
                 left,
@@ -502,7 +510,7 @@ if(elapsed < 100){
 
         }
 
-        if(right.complete){
+        if(right && right.complete){
 
             ctx.drawImage(
                 right,
