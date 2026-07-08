@@ -253,6 +253,9 @@ document.addEventListener('keydown',closeDmp,{once:true});
   }
 
   function renderStartMenu(view='mode'){
+
+    console.log("renderStartMenu:", view);
+
     if (!startOverlay) return;
     startOverlay.style.display = 'flex';
     startOverlay.style.alignItems = 'flex-end';
@@ -263,9 +266,11 @@ document.addEventListener('keydown',closeDmp,{once:true});
     const ranks = renderRanksHtml();
     if (uiElement) uiElement.style.display = 'none';
 
+
+    console.log("1");
     if (view === 'character') {
-      startOverlay.style.alignItems = 'center';
-      startOverlay.style.justifyContent = 'center';
+      startOverlay.style.alignItems = 'stretch';
+      startOverlay.style.justifyContent = 'stretch';
       startOverlay.style.padding = '0';
       startOverlay.style.background = '#000';
       const characters = availableCharacters.slice(0, 9);
@@ -281,6 +286,42 @@ document.addEventListener('keydown',closeDmp,{once:true});
         loadCharacterList().then(() => renderStartMenu('character')).catch(() => renderStartMenu('character'));
         return;
       }
+  
+    if (view === 'ranking') {
+
+      
+
+      startOverlay.style.alignItems = 'stretch';
+      startOverlay.style.justifyContent = 'stretch';
+      startOverlay.style.padding = '0';
+      startOverlay.style.background = '#000';
+
+      startOverlay.innerHTML =
+        '<div class="title-menu" style="width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
+
+          '<h1>Ranking Mundial</h1>' +
+
+          '<div style="display:flex;align-items:center;justify-content:center;gap:40px;">' +
+
+            '<img src="assets/roshi.png" style="height:340px;image-rendering:pixelated;">' +
+
+            '<div class="ranking-list">' +
+              renderRanksHtml() +
+            '</div>' +
+
+            '<img src="assets/roshi.png" style="height:340px;transform:scaleX(-1);image-rendering:pixelated;">' +
+
+          '</div>' +
+
+          '<button id="backBtn">Volver</button>' +
+
+        '</div>';
+
+      document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
+
+      return;
+    }
+   
       document.querySelectorAll('.char-card').forEach(button => {
         button.onclick = () => {
           selectedCharacter = { label: button.dataset.label || 'Personaje', src: button.dataset.src };
@@ -291,13 +332,36 @@ document.addEventListener('keydown',closeDmp,{once:true});
       });
       return;
     }
+
+
+console.log("2");
+    
+  if (view === 'ranking') {
+      startOverlay.style.alignItems = 'stretch';
+      startOverlay.style.justifyContent = 'stretch';
+      startOverlay.style.padding = '0';
+      startOverlay.style.background = '#000';
+      startOverlay.innerHTML =
+        '<div class="title-menu" style="width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
+          '<h1>Ranking Mundial</h1>' +
+          '<div style="display:flex;align-items:center;justify-content:center;gap:40px;">' +
+            '<img src="assets/roshi.png" style="height:340px;image-rendering:pixelated;">' +
+            '<div class="ranking-list">' + renderRanksHtml() + '</div>' +
+            '<img src="assets/roshi.png" style="height:340px;transform:scaleX(-1);image-rendering:pixelated;">' +
+          '</div>' +
+          '<button id="backBtn">Volver</button>' +
+        '</div>';
+      document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
+      return;
+  }
+
 const modeButtons =
   '<div class="mode-section"><h2>Modo de juego</h2><div class="menu-actions"><button id="historyBtn">Historia</button><button id="infinityBtn">Infinity</button></div></div>';
 
 startOverlay.innerHTML =
   '<img src="assets/start_background.png" class="menu-bg"><div class="title-menu"><h1>DBZ Infinity</h1>' +
   modeButtons +
-  '<div id="menuMsg" class="menu-msg"></div><div class="menu-actions"><button id="startBtn">Nueva partida</button><button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button><button id="ranksBtn">Ver ranks</button><button id="creditsBtn">Créditos</button><button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button></div><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label><div id="rankPanel" class="rank-panel" style="display:' + (view === 'ranks' ? 'block' : 'none') + '"><h2>Ranks</h2>' + ranks + '</div></div>';
+  '<div id="menuMsg" class="menu-msg"></div><div class="menu-actions"><button id="startBtn">Nueva partida</button><button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button><button id="ranksBtn">Ver ranks</button><button id="creditsBtn">Créditos</button><button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button></div><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label></div>';
 
 document.getElementById('historyBtn').onclick = () => {
   selectedGameMode = 'story';
@@ -323,7 +387,7 @@ document.getElementById('continueBtn').onclick = () => {
 };
 
 document.getElementById('ranksBtn').onclick = () =>
-  renderStartMenu(view === 'ranks' ? 'mode' : 'ranks');
+  renderStartMenu('ranking');
 
 document.getElementById('creditsBtn').onclick = () => {
 
