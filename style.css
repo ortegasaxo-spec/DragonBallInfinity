@@ -36,3 +36,88 @@ canvas{display:block}
 .char-card span{font-size:14px;color:#fff;text-align:center;line-height:1.2}
 @media (max-width:1080px){.character-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media (max-width:720px){#startOverlay{align-items:flex-end!important;justify-content:center!important;padding:0 14px 18px!important}#startOverlay .title-menu{text-align:center}#startOverlay .title-menu h1{text-align:center}.character-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* ===== PAUSE MENU FULLSCREEN ===== */
+
+.pause-card.fullscreen{
+    width:100vw;
+    height:100vh;
+    max-width:none;
+    max-height:none;
+
+    border:none;
+    border-radius:0;
+
+    padding:0;
+
+    overflow:hidden;
+
+    background:rgba(0,0,0,.45);
+
+backdrop-filter:blur(3px);
+
+    display:flex;
+}
+
+.pause-layout{
+
+    width:100%;
+    height:100%;
+
+    display:grid;
+
+    grid-template-columns:1fr 700px 1fr;
+
+    align-items:center;
+}
+
+.pause-side{
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+}
+
+.pause-side img{
+
+    height:360px;
+
+    image-rendering:pixelated;
+}
+
+.pause-side.right img{
+
+    transform:scaleX(-1);
+}
+
+.pause-center{
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    justify-content:center;
+
+    gap:18px;
+
+    width:100%;
+}
+
+.pause-upgrades{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:10px;
+
+    width:520px;
+
+    max-height:60vh;
+
+    overflow:auto;
+}
