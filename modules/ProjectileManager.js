@@ -17,6 +17,7 @@
       const {
     gokuShotImg,
     kameImg,
+    kamehamehaImg,
     discoImg,
     barrierImg,
     drawCleanSprite
@@ -191,7 +192,7 @@
         ctx.save();
         ctx.translate(kameProjectile.x, kameProjectile.y);
         ctx.rotate(ang);
-        ctx.drawImage(assets.kameImg, -40, -80, 80, 160);
+        ctx.drawImage(assets. kameImg, -40, -80, 160, 160);
         ctx.restore();
       }
     if (kamehamehaProjectile && this.isVisibleRect(
@@ -218,7 +219,7 @@
     ctx.rotate(ang);
 
     ctx.drawImage(
-        kameImg,
+        kamehamehaImg,
         -40,
         -80,
         80,

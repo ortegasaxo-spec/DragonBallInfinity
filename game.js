@@ -636,6 +636,7 @@ const shooterAsteroidImg=new Image(); shooterAsteroidImg.src='assets/comet-17822
 const capsuleImg=new Image(); capsuleImg.src='assets/senzu.png';
 const kameImg=new Image(); kameImg.src='assets/genkidama.png';
 const cargaKameImg=new Image(); cargaKameImg.src='assets/cargagenki.png';
+const kamehamehaImg = new Image(); kamehamehaImg.src = 'assets/kame.png';
 const gokuShotImg=new Image(); gokuShotImg.src='assets/Goku_projectile.png';
 const garlicImg=new Image(); garlicImg.src='assets/garlic.png';
 const deathBallImg=new Image(); deathBallImg.src='assets/bola muerte golden.png';
@@ -1188,12 +1189,14 @@ function launchKamehameha(target){
   kamehamehaProjectile = {
     x: player.x,
     y: player.y,
-    vx: dx / dist * 14,
-    vy: dy / dist * 14,
+    vx: dx / dist * 5,
+    vy: dy / dist * 5,
     damage: player.damage * [20,25,30][superTechLevels.kamehameha-1],
     r:24,
     dead:false
   };
+
+  console.log("KAME CREADO", kamehamehaProjectile);
 
 }
 
@@ -1539,6 +1542,8 @@ if(superTechLevels.kamehameha > 0){
 
         if(target){
 
+          console.log("INTENTO LANZAR KAME", target);
+
             launchKamehameha(target);
 
         }
@@ -1702,21 +1707,6 @@ if(superTechLevels.kamehameha > 0){
      }
    }
 
-    if(kamehamehaProjectile){
-
-    kamehamehaProjectile.x += kamehamehaProjectile.vx;
-    kamehamehaProjectile.y += kamehamehaProjectile.vy;
-
-    if(
-    kamehamehaProjectile.x < -100 ||
-    kamehamehaProjectile.x > canvas.width + 100 ||
-    kamehamehaProjectile.y < -100 ||
-    kamehamehaProjectile.y > canvas.height + 100
-  ){
-    kamehamehaProjectile = null;
-  }
-
-}
 
  });
  });
@@ -2149,7 +2139,7 @@ for (const e of enemies) {
 }
 
  profilePhase('Projectile Render',()=>{
-   projectileManager.renderProjectiles(ctx,projectileRenderState,{gokuShotImg,discoImg,barrierImg,kameImg,drawCleanSprite});
+   projectileManager.renderProjectiles(ctx,projectileRenderState,{gokuShotImg,discoImg,barrierImg,kameImg,kamehamehaImg,drawCleanSprite});
  });
 
  profilePhase('Particle Render',()=>{
