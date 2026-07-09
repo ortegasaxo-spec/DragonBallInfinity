@@ -1,9 +1,26 @@
 (function(global){
   class ProjectileManager {
     renderProjectiles(ctx, state, assets) {
-      const { bullets, enemyBullets, particles, shieldOrbs, kienzanShots, dodonpaShots, kiExplosionEffect, kameProjectile, canvas } = state;
+      const {
+  bullets,
+  enemyBullets,
+  particles,
+  shieldOrbs,
+  kienzanShots,
+  dodonpaShots,
+  kiExplosionEffect,
+  kameProjectile,
+  kamehamehaProjectile,
+  canvas
+} = state;
       const renderNow = state.getCurrentTime ? state.getCurrentTime() : performance.now();
-      const { gokuShotImg, discoImg, barrierImg, drawCleanSprite } = assets;
+      const {
+    gokuShotImg,
+    kameImg,
+    discoImg,
+    barrierImg,
+    drawCleanSprite
+} = assets;
 
       const gokuShotStepDeg = 10;
       const gokuShotSteps = 360 / gokuShotStepDeg;
@@ -177,6 +194,39 @@
         ctx.drawImage(assets.kameImg, -40, -80, 80, 160);
         ctx.restore();
       }
+    if (kamehamehaProjectile && this.isVisibleRect(
+    canvas,
+    kamehamehaProjectile.x - 40,
+    kamehamehaProjectile.y - 80,
+    80,
+    160
+)){
+
+    const ang =
+        Math.atan2(
+            kamehamehaProjectile.vy,
+            kamehamehaProjectile.vx
+        ) + Math.PI / 2;
+
+    ctx.save();
+
+    ctx.translate(
+        kamehamehaProjectile.x,
+        kamehamehaProjectile.y
+    );
+
+    ctx.rotate(ang);
+
+    ctx.drawImage(
+        kameImg,
+        -40,
+        -80,
+        80,
+        160
+    );
+
+    ctx.restore();
+}  
     }
 
     renderParticles(ctx, state) {

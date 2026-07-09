@@ -634,8 +634,8 @@ window.setPlayerSprite = setPlayerSprite;
 const asteroidImg=new Image(); asteroidImg.src='assets/asteroid.png';
 const shooterAsteroidImg=new Image(); shooterAsteroidImg.src='assets/comet-1782248712754-85rtugu.png';
 const capsuleImg=new Image(); capsuleImg.src='assets/senzu.png';
-const kameImg=new Image(); kameImg.src='assets/kame.png';
-const cargaKameImg=new Image(); cargaKameImg.src='assets/Cargakame.png';
+const kameImg=new Image(); kameImg.src='assets/genkidama.png';
+const cargaKameImg=new Image(); cargaKameImg.src='assets/cargagenki.png';
 const gokuShotImg=new Image(); gokuShotImg.src='assets/Goku_projectile.png';
 const garlicImg=new Image(); garlicImg.src='assets/garlic.png';
 const deathBallImg=new Image(); deathBallImg.src='assets/bola muerte golden.png';
@@ -650,8 +650,11 @@ const shenronImg=new Image(); shenronImg.src='assets/Shenron.png';
 const bossProjectileImgA=new Image(); bossProjectileImgA.src='assets/Broly 65.png';
 const bossProjectileImgB=new Image(); bossProjectileImgB.src='assets/Bills_92.png.png';
 const bossProjectileImages=[bossProjectileImgA,bossProjectileImgB];
+const KAMEHAMEHA_DAMAGE_MULTIPLIER = 20;
+const KAMEHAMEHA_COOLDOWN = 20000;
 let kameActive=false,kamePhase=0,kameProjectile=null,kameExplosion=0,kameExplosionTarget=null;
-
+let kamehamehaCooldownUntil = 0;
+let kamehamehaProjectile = null;
 
 let damageFlash=0;
 let playerFacingLeft=false;
@@ -722,7 +725,7 @@ if(playerImg.complete){
 }
 const upgradeLevels={damage:0,speed:0,hp:0,bullets:0,rate:0};
 const upgradeMax={damage:999999,speed:5,hp:10,bullets:2,rate:5};
-const superTechLevels={shield:0,kienzan:0,kiExplosion:0,dodonpa:0,absorbki:0,dragonDash:0,muten:0};
+const superTechLevels={shield:0,kienzan:0,kiExplosion:0,dodonpa:0,absorbki:0,dragonDash:0,muten:0,kamehameha:0};
 const superTechMax=3;
 let enemies=[],bullets=[],enemyBullets=[],particles=[],powerUps=[];
 let dragonballCount=0;
@@ -1172,6 +1175,28 @@ function spawnEnemyBullet(x,y,vx,vy,color,opts={}){
  enemyBullets.push(b);
 }
 
+function launchKamehameha(target){
+
+  if(!target) return;
+  if(kamehamehaProjectile) return;
+
+  const dx = target.x - player.x;
+  const dy = target.y - player.y;
+
+  const dist = Math.hypot(dx,dy) || 1;
+
+  kamehamehaProjectile = {
+    x: player.x,
+    y: player.y,
+    vx: dx / dist * 14,
+    vy: dy / dist * 14,
+    damage: player.damage * [20,25,30][superTechLevels.kamehameha-1],
+    r:24,
+    dead:false
+  };
+
+}
+
 function addParticle(x,y,vx,vy,life,color){
  if(particles.length>=MAX_PARTICLES) return;
  const p=acquireParticle();
@@ -1503,6 +1528,24 @@ function update(){
     window.__longRunAudit.recordProjectileDetail('specialTechniques', performance.now()-specialStart);
    }
  }
+
+if(superTechLevels.kamehameha > 0){
+
+    if(now >= kamehamehaCooldownUntil){
+
+        kamehamehaCooldownUntil = now + KAMEHAMEHA_COOLDOWN;
+
+        const target = nearestEnemyForFrame || findNearestEnemy();
+
+        if(target){
+
+            launchKamehameha(target);
+
+        }
+    }
+
+}
+
  if(superTechLevels.kiExplosion>0){
    const kiExplosionStart=performance.now();
    const cooldown=superTechLevels.kiExplosion===1?60000:superTechLevels.kiExplosion===2?45000:30000;
@@ -1658,6 +1701,23 @@ function update(){
       window.__longRunAudit.recordProjectileDetail('queryEnemiesNear', performance.now()-queryStart);
      }
    }
+
+    if(kamehamehaProjectile){
+
+    kamehamehaProjectile.x += kamehamehaProjectile.vx;
+    kamehamehaProjectile.y += kamehamehaProjectile.vy;
+
+    if(
+    kamehamehaProjectile.x < -100 ||
+    kamehamehaProjectile.x > canvas.width + 100 ||
+    kamehamehaProjectile.y < -100 ||
+    kamehamehaProjectile.y > canvas.height + 100
+  ){
+    kamehamehaProjectile = null;
+  }
+
+}
+
  });
  });
 
@@ -1862,6 +1922,66 @@ if(!window.god){
    else {kameProjectile.x += dx/d*6; kameProjectile.y += dy/d*6;}
  }
  if(kameExplosion>0){ kameExplosion--; if(kameExplosion<=0) kameExplosionTarget=null; }
+ if(kamehamehaProjectile){
+
+    kamehamehaProjectile.x += kamehamehaProjectile.vx;
+    kamehamehaProjectile.y += kamehamehaProjectile.vy;
+
+    if(
+        kamehamehaProjectile.x < -100 ||
+        kamehamehaProjectile.x > canvas.width + 100 ||
+        kamehamehaProjectile.y < -100 ||
+        kamehamehaProjectile.y > canvas.height + 100
+    ){
+        kamehamehaProjectile = null;
+    }
+
+}
+
+  if(kamehamehaProjectile){
+
+    kamehamehaProjectile.x += kamehamehaProjectile.vx;
+    kamehamehaProjectile.y += kamehamehaProjectile.vy;
+
+    queryEnemiesNear(
+        kamehamehaProjectile.x,
+        kamehamehaProjectile.y,
+        40,
+        (e)=>{
+
+            if(!e || e.dead) return false;
+
+            e.hp -= kamehamehaProjectile.damage;
+
+            hitSpark(
+                kamehamehaProjectile.x,
+                kamehamehaProjectile.y,
+                e.type==='boss'
+            );
+
+            if(e.hp<=0) defeatEnemy(e);
+
+            kamehamehaProjectile = null;
+
+            return true;
+
+        },
+        'kamehameha'
+    );
+
+    if(
+        kamehamehaProjectile &&
+        (
+            kamehamehaProjectile.x < -200 ||
+            kamehamehaProjectile.x > canvas.width + 200 ||
+            kamehamehaProjectile.y < -200 ||
+            kamehamehaProjectile.y > canvas.height + 200
+        )
+    ){
+        kamehamehaProjectile = null;
+    }
+}
+
  profilePhase('Particle Update',()=>{
    for(let i=0;i<particles.length;i++){
      const p=particles[i];
@@ -1942,7 +2062,7 @@ function renderHudLayer(now){
 
 function draw(){
  const renderState={canvas,player,enemies,bossImages,asteroidImg,shooterAsteroidImg,drawCleanSprite,drawSpriteFacing};
- const projectileRenderState={canvas,player,enemies,bullets,enemyBullets,particles,shieldOrbs,kienzanShots,dodonpaShots,kiExplosionEffect,kameProjectile,getCurrentTime};
+ const projectileRenderState={canvas,player,enemies,bullets,enemyBullets,particles,shieldOrbs,kienzanShots,dodonpaShots,kiExplosionEffect,kameProjectile, kamehamehaProjectile, getCurrentTime};
  const drawNow=getCurrentTime();
 
  profilePhase('Background',()=>{

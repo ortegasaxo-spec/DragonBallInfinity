@@ -10,7 +10,7 @@
     return true;
   }
 
-  const SUPER_TECH_PER_MAX = { dragonDash: 1, muten: 1 };
+  const SUPER_TECH_PER_MAX = { dragonDash: 1, muten: 1, kamehameha: 3 };
 
   function getSuperTechLabel(key){
     switch(key){
@@ -21,12 +21,13 @@
       case 'absorbki': return 'Absorbeki';
       case 'dragonDash': return 'Acometida del Dragón';
       case 'muten': return 'Concentración de Muten Roshi';
+      case 'kamehameha': return 'Kamehameha';
       default: return key;
     }
   }
 
   function getSuperTechOptions(){
-    const poolKeys = ['shield','kienzan','kiExplosion','dodonpa','absorbki','dragonDash','muten'];
+    const poolKeys = ['shield','kienzan','kiExplosion','dodonpa','absorbki','dragonDash','muten','kamehameha'];
     const pool = poolKeys.filter(k => superTechLevels[k] < (SUPER_TECH_PER_MAX[k] || superTechMax));
     const options = [];
     while (options.length < 3 && pool.length) {
@@ -78,6 +79,7 @@
         for (let i = 0; i < 14; i++) addParticle(player.x, player.y, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, 22, '#ffd6ff');
         window.chapterManager.showMenuMessage('Concentración de Muten Roshi lista');
         break;
+        
     }
   }
 
