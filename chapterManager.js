@@ -181,11 +181,15 @@
     if(window.currentChapter !== undefined)
         window.currentChapter = 1;
 
+    resetRunState();
+
+    // Muy importante: limpiar cualquier pausa heredada
+    paused = false;
+    pauseMenuOpen = false;
+
     if(window.StoryMode && window.StoryMode.start){
         window.StoryMode.start();
     }
-
-    resetRunState();
 
     gameStarted = true;
     gameOver = false;

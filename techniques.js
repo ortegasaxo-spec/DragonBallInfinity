@@ -106,6 +106,12 @@
         window.__spawnAcc = 0;
       };
       div.appendChild(b);
+
+      if(window.speed10){
+    const autoBtn = b;
+    setTimeout(() => autoBtn.click(), 50);
+   
+}
     });
   }
 
@@ -139,6 +145,12 @@
       b.textContent = o.label + ' (' + upgradeLevels[o.key] + '/' + upgradeMax[o.key] + ')';
       b.onclick = () => { applyUpgrade(o.key, o.apply); div.style.display = 'none'; paused = false; window.__spawnAcc = 0; };
       div.appendChild(b);
+
+      if(window.speed10){
+      const autoBtn = b;
+      setTimeout(() => autoBtn.click(), 50);
+      break;
+}
     }
   }
 

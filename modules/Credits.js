@@ -123,7 +123,7 @@ function exitCredits(){
     console.log("EXIT CREDITS");
 
 
-if(window.storyEndingCredits()){
+    if(window.storyEndingCredits && window.storyEndingCredits()){
 
     window.clearStoryEndingCredits();
 
@@ -134,6 +134,8 @@ if(window.storyEndingCredits()){
     return;
 
 }
+
+    console.log("EXIT -> MENU");
 
     stop();
 
@@ -183,11 +185,14 @@ function begin(){
 
     running = true;
 
-document.addEventListener("keydown", onKey);
-document.addEventListener("mousedown", onClick);
+    window.storyCreditsFinished = false;
+    console.log("storyCreditsFinished reset");
+
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("mousedown", onClick);
 
     creditsMusic.currentTime = 0;
-creditsMusic.play().catch(()=>{});
+    creditsMusic.play().catch(()=>{});
 
     startedAt = performance.now();
 
@@ -278,15 +283,15 @@ function update(now){
         // Pantalla final
         case 2:
 
-        if(elapsed>=6000){
+    if(elapsed>=6000){
 
-    window.storyCreditsFinished = true;
+        window.storyCreditsFinished = true;
 
-    stop();
+        exitCredits();
 
-}   
+    }
 
-        break;
+    break;
 
     }
 

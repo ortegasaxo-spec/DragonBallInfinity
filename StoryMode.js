@@ -229,6 +229,13 @@
       }
       audio.src = candidates[candidateIndex++];
       audio.onended = () => finishPresentation();
+
+      // Seguridad: si por cualquier motivo no llega el evento "ended"
+setTimeout(() => {
+    if (chapterRuntime && chapterRuntime.inPresentation) {
+        finishPresentation();
+    }
+}, 15000);
       audio.onerror = () => playCandidate();
       audio.play().catch(() => playCandidate());
     };
@@ -276,12 +283,17 @@
   }
 
 function finishPresentation(){
+
+    console.log("FINISH PRESENTATION 1");
+
     if(!storyOverlay || !storyImage) return restoreGameControl();
 
     storyFadeTimeoutId = 0;
     storyImage.style.opacity = '0';
 
     storyResumeTimeoutId = setTimeout(() => {
+
+        console.log("FINISH PRESENTATION 2");
 
         storyResumeTimeoutId = 0;
 
@@ -295,6 +307,8 @@ function finishPresentation(){
         }
 
         restoreGameControl();
+
+        console.log("FINISH PRESENTATION 3");
 
         if(chapterRuntime){
             chapterRuntime.inPresentation = false;
@@ -457,6 +471,9 @@ chapterRuntime = {
 
 function showStoryCompletedScreen(){
 
+  paused = true;
+console.log("SHOW STORY COMPLETED", paused);
+
     const overlay = document.createElement("div");
 
     overlay.id = "storyCompletedOverlay";
@@ -506,13 +523,17 @@ function showStoryCompletedScreen(){
 
     document.getElementById("newGamePlusBtn").onclick = () => {
 
-    overlay.remove();
+      console.log("CLICK NEW GAME+");
 
-    chapterManager.startNewGamePlus();
+      overlay.remove();
+
+      chapterManager.startNewGamePlus();
 
 };
 
     document.getElementById("returnTitleBtn").onclick = () => {
+
+        console.log("CLICK MENU");
 
         overlay.remove();
 
@@ -535,20 +556,7 @@ window.clearStoryEndingCredits = () => { storyEndingCredits = false; };
 
    CreditsScene.begin();
 
-    const waitCredits = setInterval(()=>{
-
-        if(window.storyCreditsFinished){
-
-            clearInterval(waitCredits);
-
-            window.storyCreditsFinished = false;
-
-            showStoryCompletedScreen();
-
-        }
-
-    },100);
-
+  
     return null;
 
 }
