@@ -28,14 +28,14 @@
       const cometScale = 4.5;
       const cometAspect = 1024 / 1536;
       const width = e.type === 'boss'
-        ? e.size * 2 * scale
+        ? e.size * 2 * scale 
         : e.shoot
-          ? e.size * 2 * cometScale
+          ? e.size * 2 * cometScale 
           : e.size * 2 * scale;
       const height = e.type === 'boss'
         ? e.size * 2 * scale
         : e.shoot
-          ? e.size * 2 * cometScale * cometAspect
+          ? e.size * 2 * cometScale * cometAspect * 0.75
           : e.size * 2 * scale;
       return { w: width, h: height, shape: 'rect' };
     }
