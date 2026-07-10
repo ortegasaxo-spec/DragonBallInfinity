@@ -38,6 +38,7 @@
   }
 
   function triggerSuperTechFeedback(key, now){
+        const damageBonus = player.damage - 1;
     switch(key){
       case 'shield':
         shieldOrbs = [];
@@ -51,18 +52,18 @@
         const target = window.playerManager.findNearestEnemy();
         if (target){
           const angle = Math.atan2(target.y - player.y, target.x - player.x);
-          kienzanShots.push({ x: player.x, y: player.y, vx: Math.cos(angle) * 16, vy: Math.sin(angle) * 16, damage: player.damage * (superTechLevels.kienzan === 1 ? 1 : superTechLevels.kienzan === 2 ? 2 : 4), dead:false });
+          kienzanShots.push({ x: player.x, y: player.y, vx: Math.cos(angle) * 16, vy: Math.sin(angle) * 16, damage: (superTechLevels.kienzan === 1 ? 1 : superTechLevels.kienzan === 2 ? 2 : 4) + damageBonus, dead:false });
         }
         for (let i = 0; i < 12; i++) addParticle(player.x, player.y, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, 24, '#ffffff');
         break;
       case 'kiExplosion':
-        kiExplosionEffect = { x: player.x + (playerFacingLeft ? -34 : 34), y: player.y, radius: 18, maxRadius: Math.max(canvas.width, canvas.height) * 0.62, damage: player.damage * (superTechLevels.kiExplosion === 1 ? 1 : superTechLevels.kiExplosion === 2 ? 2 : 4), createdAt: now };
+        kiExplosionEffect = { x: player.x + (playerFacingLeft ? -34 : 34), y: player.y, radius: 18, maxRadius: Math.max(canvas.width, canvas.height) * 0.62,damage: (superTechLevels.kiExplosion === 1 ? 1 : superTechLevels.kiExplosion === 2 ? 2 : 4) + (damageBonus * 5), createdAt: now };
         kiExplosionCooldownAt = now + 1000;
         break;
       case 'dodonpa':
         const dodonTarget = findNearestEnemy();
         if (dodonTarget){
-          dodonpaShots.push({ x: player.x, y: player.y, fromX: player.x, fromY: player.y, targetX: dodonTarget.x, targetY: dodonTarget.y, life: 24, damage: player.damage * 3 });
+          dodonpaShots.push({ x: player.x, y: player.y, fromX: player.x, fromY: player.y, targetX: dodonTarget.x, targetY: dodonTarget.y, life: 24, damage: 3 + damageBonus });
           for (let i = 0; i < 10; i++) addParticle(player.x, player.y, (Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4, 16, '#fff3a0');
         }
         break;
