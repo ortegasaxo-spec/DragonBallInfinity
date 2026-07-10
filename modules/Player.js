@@ -14,10 +14,16 @@
     getHitbox(e) {
       if (!e) return { w: 0, h: 0, shape: 'rect' };
       if (e.type === 'boss') {
-        const n = (e.bossName || '').toLowerCase();
-        if (n.includes('ozaru')) return { w: 320, h: 420, shape: 'ellipse' };
-        return { w: 123, h: 158, shape: 'rect' };
-      }
+  const n = (e.bossName || '').toLowerCase();
+
+  // Ozaru mantiene su hitbox original
+  if (n.includes('ozaru')) {
+    return { w: 320, h: 420, shape: 'ellipse' };
+  }
+
+  // Resto de bosses: mismo alto, mitad de ancho
+  return { w: 61.5, h: 158, shape: 'rect' };
+}
       const scale = 1.125;
       const cometScale = 4.5;
       const cometAspect = 1024 / 1536;
