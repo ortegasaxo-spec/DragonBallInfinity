@@ -1190,8 +1190,8 @@ function launchKamehameha(target){
   kamehamehaProjectile = {
     x: player.x,
     y: player.y,
-    vx: dx / dist * 1,
-    vy: dy / dist * 1,
+    vx: dx / dist,
+    vy: dy / dist,
     damage: player.damage * [20,25,30][superTechLevels.kamehameha-1],
     r:24,
     dead:false
@@ -1540,7 +1540,10 @@ if(superTechLevels.kamehameha > 0){
 
         kamehamehaCooldownUntil = now + KAMEHAMEHA_COOLDOWN;
 
-        const target = nearestEnemyForFrame || findNearestEnemy();
+        const target =
+    window.playerManager.findNearestBoss() ||
+    nearestEnemyForFrame ||
+    window.playerManager.findNearestEnemy();
 
         if(target){
 
@@ -1941,23 +1944,30 @@ if(!window.god){
         40,
         (e)=>{
 
-            if(!e || e.dead) return false;
+    if(!e || e.dead) return false;
 
-            e.hp -= kamehamehaProjectile.damage;
+    const dx = kamehamehaProjectile.x - e.x;
+    const dy = kamehamehaProjectile.y - e.y;
 
-            hitSpark(
-                kamehamehaProjectile.x,
-                kamehamehaProjectile.y,
-                e.type==='boss'
-            );
+    if(dx * dx + dy * dy > (e.size + 24) * (e.size + 24)){
+        return false;
+    }
 
-            if(e.hp<=0) defeatEnemy(e);
+    e.hp -= kamehamehaProjectile.damage;
 
-            kamehamehaProjectile = null;
+    hitSpark(
+        kamehamehaProjectile.x,
+        kamehamehaProjectile.y,
+        e.type === 'boss'
+    );
 
-            return true;
+    if(e.hp <= 0) defeatEnemy(e);
 
-        },
+    kamehamehaProjectile = null;
+
+    return true;
+
+},
         'kamehameha'
     );
 

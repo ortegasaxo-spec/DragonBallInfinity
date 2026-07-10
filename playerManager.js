@@ -1,17 +1,41 @@
 (function(global){
   function findNearestEnemy(){
-    let best = null;
-    let bestD = Infinity;
-    for (let i = 0; i < enemies.length; i++) {
-      const e = enemies[i];
-      if (!e || e.dead) continue;
-      const dx = e.x - player.x;
-      const dy = e.y - player.y;
-      const d = dx * dx + dy * dy;
-      if (d < bestD) { best = e; bestD = d; }
+  let best = null;
+  let bestD = Infinity;
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i];
+    if (!e || e.dead) continue;
+    const dx = e.x - player.x;
+    const dy = e.y - player.y;
+    const d = dx * dx + dy * dy;
+    if (d < bestD) {
+      best = e;
+      bestD = d;
     }
-    return best;
   }
+  return best;
+}
+
+  function findNearestBoss(){
+  let best = null;
+  let bestD = Infinity;
+
+  for (let i = 0; i < enemies.length; i++) {
+    const e = enemies[i];
+    if (!e || e.dead || e.type !== 'boss') continue;
+
+    const dx = e.x - player.x;
+    const dy = e.y - player.y;
+    const d = dx * dx + dy * dy;
+
+    if (d < bestD) {
+      best = e;
+      bestD = d;
+    }
+  }
+
+  return best;
+}
 
   function getHitbox(e){
     return playerController.getHitbox(e);
@@ -69,10 +93,11 @@
 
   global.playerManager = {
     findNearestEnemy,
+    findNearestBoss,
     getHitbox,
     aabbHit,
     isFarFromPlayer,
     trimArray,
     compactArrays
-  };
+};
 })(window);
