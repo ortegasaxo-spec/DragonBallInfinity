@@ -1461,6 +1461,7 @@ function update(){
    }
  const nearestEnemyForFrame = (superTechLevels.kienzan>0 || superTechLevels.dodonpa>0) ? findNearestEnemy() : null;
  profilePhase('Collision',()=>{
+ const damageBonus = player.damage - 1; 
  if(superTechLevels.shield>0){
    const count=superTechLevels.shield===1?3:superTechLevels.shield===2?4:5;
    const damageMul=superTechLevels.shield===1?1:superTechLevels.shield===2?2:4;
@@ -1504,7 +1505,7 @@ function update(){
      for(let i=0;i<count;i++){
        const target=nearestEnemyForFrame;
        const angle=target?Math.atan2(target.y-player.y,target.x-player.x):Math.atan2(Math.sin(now*0.001+i),Math.cos(now*0.001+i));
-       const disc={x:player.x,y:player.y,vx:Math.cos(angle)*10,vy:Math.sin(angle)*10,damage:player.damage*(superTechLevels.kienzan===1?1:superTechLevels.kienzan===2?2:4),dead:false};
+       const disc={x:player.x,y:player.y,vx:Math.cos(angle)*10,vy:Math.sin(angle)*10,damage:(superTechLevels.kienzan===1?1:superTechLevels.kienzan===2?2:4)+damageBonus,dead:false};
        kienzanShots.push(disc);
      }
    }
@@ -1557,7 +1558,7 @@ if(superTechLevels.kamehameha > 0){
    const cooldown=superTechLevels.kiExplosion===1?60000:superTechLevels.kiExplosion===2?45000:30000;
    if(now>=kiExplosionCooldownAt){
      kiExplosionCooldownAt=now+cooldown;
-     kiExplosionEffect={x:player.x+(playerFacingLeft?-34:34),y:player.y,radius:10,maxRadius:Math.max(canvas.width,canvas.height)*0.6,damage:player.damage*(superTechLevels.kiExplosion===1?1:superTechLevels.kiExplosion===2?2:4),createdAt:now};
+     kiExplosionEffect={x:player.x+(playerFacingLeft?-34:34),y:player.y,radius:10,maxRadius:Math.max(canvas.width,canvas.height)*0.6,damage:(superTechLevels.kiExplosion===1?1:superTechLevels.kiExplosion===2?2:4)+(damageBonus*5),createdAt:now};
      if(window.__longRunAudit && window.__longRunAudit.enabled) window.__longRunAudit.kiExplosionExecutions++;
    }
    if(kiExplosionEffect){
@@ -1592,7 +1593,7 @@ if(superTechLevels.kamehameha > 0){
      for(let i=0;i<count;i++){
        const target=nearestEnemyForFrame;
        if(!target) continue;
-       dodonpaShots.push({x:player.x,y:player.y,fromX:player.x,fromY:player.y,targetX:target.x,targetY:target.y,life:24,damage:player.damage*3});
+       dodonpaShots.push({x:player.x,y:player.y,fromX:player.x,fromY:player.y,targetX:target.x,targetY:target.y,life:24,damage:3+damageBonus});
        hitSpark(target.x,target.y,target.type==='boss');
      }
    }
