@@ -97,8 +97,17 @@
         }
         if (b.img) {
           const baseSize = (b.radius || 12) * 2;
-          const size = b.type === 'garlic' ? baseSize * 4 : baseSize;
+
+          let size = baseSize;
+
+          if (b.type === 'garlic') {
+            size = baseSize * 4;
+          } else if (b.type === 'goldenFreezerRay') {
+            size = baseSize * 2;
+          }
+
           if (!this.isVisibleRect(canvas, b.x - size / 2, b.y - size / 2, size, size)) continue;
+
           if (b.type === 'garlic') {
             const facing = (b.vx || 0) < 0 ? -1 : 1;
             ctx.save();
@@ -109,10 +118,12 @@
           } else {
             ctx.save();
             ctx.translate(b.x, b.y);
-            if (b.type === 'goldenFreezerRay') ctx.rotate(Math.atan2(b.vy || 0, b.vx || 1));
+          if (b.type === 'goldenFreezerRay')
+            ctx.rotate(Math.atan2(b.vy || 0, b.vx || 1) + Math.PI);
             drawCleanSprite(b.img, -size / 2, -size / 2, size, size);
             ctx.restore();
           }
+
           continue;
         }
         if (!this.isVisibleCircle(canvas, b.x, b.y, b.radius || 8)) continue;
