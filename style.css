@@ -1,9 +1,43 @@
 
-body{margin:0;background:#000;color:#fff;font-family:Arial;overflow:hidden}
-#ui{display:none;position:fixed;left:10px;top:10px;z-index:10}
-#levelUp{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.9)}
-button{padding:10px 20px;margin:10px}
-canvas{display:block}
+body{
+    margin:0;
+    background:#000;
+    color:#fff;
+    font-family:Arial;
+    overflow:hidden;
+}
+
+#ui{
+    display:none;
+    position:fixed;
+    left:10px;
+    top:10px;
+    z-index:10;
+    color:#ff9c00;
+}
+
+#ui span{
+    color:#ff9c00;
+}
+
+#levelUp{
+    position:fixed;
+    inset:0;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:rgba(0,0,0,.9);
+}
+
+button{
+    padding:10px 20px;
+    margin:10px;
+}
+
+canvas{
+    display:block;
+}
 
 
 #startOverlay,#pauseOverlay{box-sizing:border-box}

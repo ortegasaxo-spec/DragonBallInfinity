@@ -29,7 +29,7 @@
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
       ctx.font = '18px Arial';
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = '#ff9c00';
       const baseX = this.canvas.width - 20;
       const baseY = this.canvas.height - 24;
       if (assets.babaImg && assets.babaImg.complete && assets.babaImg.naturalWidth) { ctx.drawImage(assets.babaImg, baseX - 34, baseY - 16, 28, 28); }

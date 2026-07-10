@@ -1189,8 +1189,8 @@ function launchKamehameha(target){
   kamehamehaProjectile = {
     x: player.x,
     y: player.y,
-    vx: dx / dist * 5,
-    vy: dy / dist * 5,
+    vx: dx / dist * 1,
+    vy: dy / dist * 1,
     damage: player.damage * [20,25,30][superTechLevels.kamehameha-1],
     r:24,
     dead:false
@@ -2034,9 +2034,9 @@ function renderHudLayer(now){
    hudCtx.fillRect(canvas.width*0.15,20,canvas.width*0.7,24);
    hudCtx.fillStyle='#c00';
    hudCtx.fillRect(canvas.width*0.15,20,canvas.width*0.7*(currentBoss.hp/currentBoss.maxHp),24);
-   hudCtx.strokeStyle='#fff';
+   hudCtx.strokeStyle='#ff9c00';
    hudCtx.strokeRect(canvas.width*0.15,20,canvas.width*0.7,24);
-   hudCtx.fillStyle='#fff';
+   hudCtx.fillStyle='#ff9c00';
    hudCtx.font='20px Arial';
    hudCtx.textAlign='center';
    hudCtx.fillText(currentBoss.bossDisplayName||((currentBoss.bossName||'Boss').replace('.png','')),canvas.width/2,16);
@@ -2360,7 +2360,7 @@ document.addEventListener('keydown', e => {
 
 function drawKillCounter(targetCtx=ctx){
  targetCtx.save();
- targetCtx.fillStyle='white';
+ targetCtx.fillStyle='#ff9c00';
  targetCtx.font='26px Arial';
  targetCtx.textAlign='right';
  targetCtx.textBaseline='top';
@@ -2581,10 +2581,10 @@ setInterval(()=>{
  if(!box){
    box=document.createElement('div');
    box.id='v16hud';
-   box.style.cssText='position:fixed;left:10px;top:10px;z-index:999999;color:white;font-family:Arial';
-   box.innerHTML=`<div id=hpt style="width:260px;background:#300;height:22px;position:relative"><div id=hpf style="background:#d00;height:100%;width:100%"></div><span id=hpn style="position:absolute;left:50%;top:2px;transform:translateX(-50%)"></span></div>
-   <div style="height:4px"></div>
-   <div id=xpt style="width:260px;background:#024;height:22px;position:relative"><div id=xpf style="background:#09f;height:100%;width:0%"></div><span id=xpn style="position:absolute;left:50%;top:2px;transform:translateX(-50%)"></span></div>`;
+   box.style.cssText='position:fixed;left:10px;top:10px;z-index:999999;color:#ff9c00;font-family:Arial';
+   box.innerHTML=`<div id=hpt style="width:260px;background:#300;height:22px;position:relative"><div id=hpf style="background:#d00;height:100%;width:100%"></div></div>
+   <div style="height:4px"></div><span id=hpn style="position:absolute;left:50%;top:2px;transform:translateX(-50%);color:#ff9c00"></span>
+   <div id=xpt style="width:260px;background:#024;height:22px;position:relative"><div id=xpf style="background:#09f;height:100%;width:0%"></div><span id=xpn style="position:absolute;left:50%;top:2px;transform:translateX(-50%);color:#ff9c00"></span></div>`;
    document.body.appendChild(box);
  }
 if(typeof player!=='undefined'){
