@@ -645,6 +645,7 @@ const rayOfFreezerImg=new Image(); rayOfFreezerImg.src='assets/rayofreezer.png';
 const halozamasImg=new Image(); halozamasImg.src='assets/halozamas.png';
 const dragonBallDropImg=new Image(); dragonBallDropImg.src='assets/dragonball.png.png';
 const barrierImg=new Image(); barrierImg.src='assets/barrera.png';
+const destructorImg=new Image(); destructorImg.src='assets/destructor.png';
 const discoImg=new Image(); discoImg.src='assets/disco.png';
 const babaImg=new Image(); babaImg.src='assets/Baba.png';
 const shenronImg=new Image(); shenronImg.src='assets/Shenron.png';

@@ -188,14 +188,19 @@
         ctx.save();
         ctx.globalAlpha = 0.8;
         ctx.translate(kiExplosionEffect.x, kiExplosionEffect.y);
-        ctx.strokeStyle = 'rgba(255,255,180,0.9)';
-        ctx.lineWidth = 8;
-        ctx.beginPath();
-        ctx.arc(0, 0, kiExplosionEffect.radius, 0, Math.PI * 2);
-        ctx.stroke();
-        if (barrierImg && barrierImg.complete && barrierImg.naturalWidth) ctx.drawImage(barrierImg, -kiExplosionEffect.radius, -kiExplosionEffect.radius, kiExplosionEffect.radius * 2, kiExplosionEffect.radius * 2);
+
+        if (destructorImg && destructorImg.complete && destructorImg.naturalWidth) {
+            ctx.drawImage(
+                destructorImg,
+                -kiExplosionEffect.radius,
+                -kiExplosionEffect.radius,
+                kiExplosionEffect.radius * 2,
+                kiExplosionEffect.radius * 2
+            );
+        }
+
         ctx.restore();
-      }
+}
 
       if (kameProjectile && this.isVisibleRect(canvas, kameProjectile.x - 40, kameProjectile.y - 80, 80, 160)) {
         const t = kameProjectile.target;
