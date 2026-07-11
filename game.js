@@ -1593,7 +1593,7 @@ if(superTechLevels.kamehameha > 0){
  }
  if(superTechLevels.dodonpa>0){
      const specialStart=performance.now();
-   const cooldown=1500;
+   const cooldown=20000;
    if(now>=dodonpaCooldownAt){
      dodonpaCooldownAt=now+cooldown;
      if(window.__longRunAudit && window.__longRunAudit.enabled) window.__longRunAudit.specialTechniqueExecutions++;
@@ -1601,32 +1601,90 @@ if(superTechLevels.kamehameha > 0){
      for(let i=0;i<count;i++){
        const target=nearestEnemyForFrame;
        if(!target) continue;
-       dodonpaShots.push({x:player.x,y:player.y,fromX:player.x,fromY:player.y,targetX:target.x,targetY:target.y,life:24,damage:3+damageBonus});
+       const dx = target.x - player.x;
+const dy = target.y - player.y;
+const len = Math.hypot(dx, dy) || 1;
+
+dodonpaShots.push({
+    fromX: player.x,
+    fromY: player.y,
+
+    toX: player.x + (dx / len) * 3000,
+    toY: player.y + (dy / len) * 3000,
+
+    damage: 3 + damageBonus,
+
+    born: now,
+    duration: 500,
+
+    hit: new Set()
+});
        hitSpark(target.x,target.y,target.type==='boss');
      }
    }
-   for(let i=dodonpaShots.length-1;i>=0;i--){
-     const shot=dodonpaShots[i];
-     if(!shot||shot.dead){ dodonpaShots.splice(i,1); continue; }
-     shot.fromX=shot.x; shot.fromY=shot.y;
-     const dx=shot.targetX-shot.x, dy=shot.targetY-shot.y;
-     const dist=Math.hypot(dx,dy)||1;
-     shot.x+=dx/dist*18; shot.y+=dy/dist*18; shot.life--;
-     if(shot.life<=0){ shot.dead=true; continue; }
-    queryEnemiesNear(shot.x,shot.y,24,(e)=>{
-       if(!e||e.dead) return false;
-       const sx=shot.x-e.x, sy=shot.y-e.y;
-       if(sx*sx+sy*sy<=(e.size+12)*(e.size+12)){
-         e.hp-=shot.damage;
-         if(window.__longRunAudit && window.__longRunAudit.enabled) window.__longRunAudit.damageApplications++;
-         hitSpark(shot.x,shot.y,e.type==='boss');
-         if(e.hp<=0) defeatEnemy(e);
-         shot.dead=true;
-         return true;
-       }
-       return false;
-    },'dodonpa');
-   }
+   for (let i = dodonpaShots.length - 1; i >= 0; i--) {
+
+    const shot = dodonpaShots[i];
+
+    if (!shot) {
+        dodonpaShots.splice(i,1);
+        continue;
+    }
+
+    if (now - shot.born >= shot.duration) {
+        dodonpaShots.splice(i,1);
+        continue;
+    }
+
+    const beamDX = shot.toX - shot.fromX;
+    const beamDY = shot.toY - shot.fromY;
+    const beamLenSq = beamDX * beamDX + beamDY * beamDY;
+
+    queryEnemiesNear(
+        player.x,
+        player.y,
+        canvas.width * 2,
+        (e)=>{
+
+            if(!e || e.dead) return false;
+
+            if(shot.hit.has(e))
+                return false;
+
+            const t =
+                ((e.x-shot.fromX)*beamDX +
+                 (e.y-shot.fromY)*beamDY) / beamLenSq;
+
+            if(t<0 || t>1)
+                return false;
+
+            const px = shot.fromX + beamDX*t;
+            const py = shot.fromY + beamDY*t;
+
+            const dx = e.x-px;
+            const dy = e.y-py;
+
+            if(dx*dx + dy*dy <= (e.size+18)*(e.size+18)){
+
+                shot.hit.add(e);
+
+                e.hp -= shot.damage;
+
+                hitSpark(px,py,e.type==='boss');
+
+                if(window.__longRunAudit && window.__longRunAudit.enabled)
+                    window.__longRunAudit.damageApplications++;
+
+                if(e.hp<=0)
+                    defeatEnemy(e);
+            }
+
+            return false;
+
+        },
+        'dodonpa'
+    );
+}
    if(window.__longRunAudit && window.__longRunAudit.enabled){
     window.__longRunAudit.recordProjectileDetail('specialTechniques', performance.now()-specialStart);
    }

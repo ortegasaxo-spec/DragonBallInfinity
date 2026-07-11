@@ -168,21 +168,46 @@
       }
 
       if (dodonpaShots && dodonpaShots.length) {
-        for (let i = 0; i < dodonpaShots.length; i++) {
-          const s = dodonpaShots[i];
-          if (!s || !this.isVisibleSegment(canvas, s.fromX, s.fromY, s.x, s.y)) continue;
-          ctx.save();
-          ctx.strokeStyle = 'rgba(255,240,100,0.95)';
-          ctx.lineWidth = 6;
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = '#fff3a0';
-          ctx.beginPath();
-          ctx.moveTo(s.fromX, s.fromY);
-          ctx.lineTo(s.x, s.y);
-          ctx.stroke();
-          ctx.restore();
-        }
-      }
+
+    for (let i = 0; i < dodonpaShots.length; i++) {
+
+        const s = dodonpaShots[i];
+
+        if (!s) continue;
+
+        if (!this.isVisibleSegment(
+            canvas,
+            s.fromX,
+            s.fromY,
+            s.toX,
+            s.toY
+        )) continue;
+
+        ctx.save();
+
+        ctx.lineCap = "round";
+
+        // Borde rojo
+        ctx.strokeStyle = "#ff9900";
+        ctx.lineWidth = 12;
+        ctx.beginPath();
+        ctx.moveTo(s.fromX, s.fromY);
+        ctx.lineTo(s.toX, s.toY);
+        ctx.stroke();
+
+        // Centro amarillo
+        ctx.strokeStyle = "#ffe600";
+        ctx.lineWidth = 7;
+        ctx.shadowBlur = 24;
+        ctx.shadowColor = "#ffe600";
+        ctx.beginPath();
+        ctx.moveTo(s.fromX, s.fromY);
+        ctx.lineTo(s.toX, s.toY);
+        ctx.stroke();
+
+        ctx.restore();
+    }
+}
 
       if (kiExplosionEffect && this.isVisibleCircle(canvas, kiExplosionEffect.x, kiExplosionEffect.y, kiExplosionEffect.radius)) {
         ctx.save();
