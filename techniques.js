@@ -44,8 +44,14 @@
         shieldOrbs = [];
         const shieldCount = superTechLevels.shield === 1 ? 3 : superTechLevels.shield === 2 ? 4 : 5;
         for (let i = 0; i < shieldCount; i++) {
-          shieldOrbs.push({ angle: (i / shieldCount) * Math.PI * 2, x: player.x, y: player.y, radius: player.r + 22 + i * 4, angularSpeed: 0.05 });
-        }
+  shieldOrbs.push({
+    angle: (i / shieldCount) * Math.PI * 2,
+    x: player.x,
+    y: player.y,
+    radius: TARGET_PLAYER_H * 0.42,
+    angularSpeed: 0.05
+  });
+}
         for (let i = 0; i < 18; i++) addParticle(player.x, player.y, (Math.random() - 0.5) * 6, (Math.random() - 0.5) * 6, 28, '#ffd166');
         break;
       case 'kienzan':

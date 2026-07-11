@@ -1465,12 +1465,17 @@ function update(){
  if(superTechLevels.shield>0){
    const count=superTechLevels.shield===1?3:superTechLevels.shield===2?4:5;
    const damageMul=superTechLevels.shield===1?1:superTechLevels.shield===2?2:4;
-   while(shieldOrbs.length<count) shieldOrbs.push({angle:Math.random()*Math.PI*2,radius:player.r+22+shieldOrbs.length*4,angularSpeed:0.05});
+   while(shieldOrbs.length<count)
+    shieldOrbs.push({
+        angle:Math.random()*Math.PI*2,
+        radius:TARGET_PLAYER_H * 0.42,
+        angularSpeed:0.05
+    });
    while(shieldOrbs.length>count) shieldOrbs.pop();
    shieldOrbs.forEach((orb,idx)=>{
      orb.angle+=(orb.angularSpeed||0.05);
-     orb.x=player.x+Math.cos(orb.angle)*(orb.radius||player.r+22+idx*4);
-     orb.y=player.y+Math.sin(orb.angle)*(orb.radius||player.r+22+idx*4);
+     orb.x = player.x + Math.cos(orb.angle) * orb.radius;
+     orb.y = player.y + Math.sin(orb.angle) * orb.radius;
     queryEnemiesNear(orb.x,orb.y,36,(e)=>{
        if(!e||e.dead) return false;
        const dx=orb.x-e.x, dy=orb.y-e.y;
