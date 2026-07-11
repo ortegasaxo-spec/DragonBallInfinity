@@ -73,15 +73,21 @@ function getStoryLoopMultiplier(){
 }
 
   function getBossHp(sequenceIndex, cycle){
+
+    const effectiveIndex = sequenceIndex + cycle * bossSequence.length;
+
     let hp = BASE_RADITZ_HP;
-    for (let i = 1; i <= sequenceIndex; i++) {
-      hp *= (i <= MULTIPLIER_THRESHOLD) ? SMALL_MULT : LARGE_MULT;
+
+    for(let i = 1; i <= effectiveIndex; i++){
+        hp *= (i <= MULTIPLIER_THRESHOLD)
+            ? SMALL_MULT
+            : LARGE_MULT;
     }
 
-  const loopMultiplier = getStoryLoopMultiplier();
+    const loopMultiplier = getStoryLoopMultiplier();
 
-  return Math.floor(hp * (1 + cycle * CYCLE_HP_SCALE) * loopMultiplier);  
-  }
+    return Math.floor(hp * loopMultiplier);
+}
 
   function getBossSpecialKey(bossName){
     const name = (bossName || '').toUpperCase();
