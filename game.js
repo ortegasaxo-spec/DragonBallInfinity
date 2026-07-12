@@ -2281,7 +2281,16 @@ for (const e of enemies) {
     const w=(clean && (clean.naturalWidth||clean.width))?(clean.naturalWidth||clean.width):0;
     const h=(clean && (clean.naturalHeight||clean.height))?(clean.naturalHeight||clean.height):0;
     if(w>0 && h>0){
-      ctx.drawImage(clean, player.x - w/2, player.y - h/2, w, h);
+      ctx.save();
+
+ctx.translate(player.x, player.y);
+
+    if (!playerFacingLeft)
+    ctx.scale(-1, 1);
+
+ctx.drawImage(clean, -w/2, -h/2, w, h);
+
+ctx.restore();
     } else {
       ctx.beginPath();
       ctx.arc(player.x,player.y,player.r,0,Math.PI*2);
