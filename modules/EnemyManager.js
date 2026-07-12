@@ -47,12 +47,17 @@
           : e.shoot
             ? e.size * 2 * cometScale * cometAspect
             : e.size * 2 * scale;
-        if (!this.isVisible(state.canvas, e.x - drawWidth / 2, e.y - drawHeight / 2, drawWidth, drawHeight)) continue;
+          if (!this.isVisible(state.canvas, e.x - drawWidth / 2, e.y - drawHeight / 2, drawWidth, drawHeight)) continue;
 
-        if (e.type === 'boss') {
+          if (e.type === 'boss') {
           ctx.save();
           ctx.translate(e.x, e.y);
-          ctx.rotate(e.rot);
+
+          if (window.player && window.player.x > e.x)
+          ctx.scale(-1, 1);
+
+          if (window.player && window.player.x < e.x)
+          ctx.scale(-1, 1);
 
           if ((e.specialKey || '').toLowerCase() === 'zamas' && e.zamasHalo && e.zamasHalo.size && halozamasImg && halozamasImg.complete && halozamasImg.naturalWidth) {
             const haloSize = e.zamasHalo.size;
@@ -61,7 +66,14 @@
 
           const bossImg = e.bossName ? bossImages[e.bossName] : null;
           if (bossImg && bossImg.complete && bossImg.naturalWidth) {
-            drawCleanSprite(bossImg, -e.size * scale, -e.size * scale, e.size * 2 * scale, e.size * 2 * scale);
+          drawSpriteFacing(
+    bossImg,
+    -e.size * scale,
+    -e.size * scale,
+    e.size * 2 * scale,
+    e.size * 2 * scale,
+    player.x < e.x
+);
           } else {
             ctx.fillStyle = 'gray';
             ctx.fillRect(-e.size, -e.size, e.size * 2, e.size * 2);
