@@ -56,10 +56,27 @@
         break;
       case 'kienzan':
         const target = window.playerManager.findNearestEnemy();
-        if (target){
-          const angle = Math.atan2(target.y - player.y, target.x - player.x);
-          kienzanShots.push({ x: player.x, y: player.y, vx: Math.cos(angle) * 16, vy: Math.sin(angle) * 16, damage: (superTechLevels.kienzan === 1 ? 1 : superTechLevels.kienzan === 2 ? 2 : 4) + damageBonus, dead:false });
-        }
+if (target){
+  const angle = Math.atan2(target.y - player.y, target.x - player.x);
+  kienzanShots.push({
+
+    x: player.x,
+    y: player.y,
+
+    vx: Math.cos(angle) * 16,
+    vy: Math.sin(angle) * 16,
+
+    damage:
+        (superTechLevels.kienzan===1 ? 1 :
+         superTechLevels.kienzan===2 ? 2 : 4)
+         + damageBonus,
+
+    hit:new Set(),
+
+    dead:false
+
+});
+}
         for (let i = 0; i < 12; i++) addParticle(player.x, player.y, (Math.random() - 0.5) * 5, (Math.random() - 0.5) * 5, 24, '#ffffff');
         break;
       case 'kiExplosion':

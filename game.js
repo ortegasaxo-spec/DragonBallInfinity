@@ -1510,24 +1510,54 @@ function update(){
      for(let i=0;i<count;i++){
        const target=nearestEnemyForFrame;
        const angle=target?Math.atan2(target.y-player.y,target.x-player.x):Math.atan2(Math.sin(now*0.001+i),Math.cos(now*0.001+i));
-       const disc={x:player.x,y:player.y,vx:Math.cos(angle)*10,vy:Math.sin(angle)*10,damage:(superTechLevels.kienzan===1?1:superTechLevels.kienzan===2?2:4)+damageBonus,dead:false};
+       const disc={
+    x:player.x,
+    y:player.y,
+    vx:Math.cos(angle)*10,
+    vy:Math.sin(angle)*10,
+    damage:(superTechLevels.kienzan===1?1:superTechLevels.kienzan===2?2:4)+damageBonus,
+    hit:new Set(),
+    rotation:0,
+    dead:false
+};
        kienzanShots.push(disc);
      }
    }
    for(let i=kienzanShots.length-1;i>=0;i--){
      const disc=kienzanShots[i];
      if(!disc||disc.dead){ kienzanShots.splice(i,1); continue; }
-     disc.x+=disc.vx; disc.y+=disc.vy;
-     if(disc.x<-200||disc.x>canvas.width+200||disc.y<-200||disc.y>canvas.height+200){ disc.dead=true; continue; }
+     disc.x += disc.vx;
+disc.y += disc.vy;
+
+disc.rotation += 0.45;
+
+const margin = 300;
+
+if(
+    disc.x < -margin ||
+    disc.x > canvas.width + margin ||
+    disc.y < -margin ||
+    disc.y > canvas.height + margin
+){
+    disc.dead = true;
+    continue;
+}
     queryEnemiesNear(disc.x,disc.y,24,(e)=>{
        if(!e||e.dead) return false;
        const dx=disc.x-e.x, dy=disc.y-e.y;
-       if(dx*dx+dy*dy<=(e.size+12)*(e.size+12)){
+       
+       if(disc.hit && disc.hit.has(e))
+    return false;
+
+    if(dx*dx+dy*dy<=(e.size+12)*(e.size+12)){
+
+    if(disc.hit)
+    disc.hit.add(e);
+         
          e.hp-=disc.damage;
          if(window.__longRunAudit && window.__longRunAudit.enabled) window.__longRunAudit.damageApplications++;
          hitSpark(disc.x,disc.y,e.type==='boss');
          if(e.hp<=0) defeatEnemy(e);
-         disc.dead=true;
          return true;
        }
        return false;
