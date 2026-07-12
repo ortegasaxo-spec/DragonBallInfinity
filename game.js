@@ -2473,6 +2473,15 @@ document.addEventListener('keydown', e => {
     if (e.key === 'Enter' && bs[selectedUpgrade]) bs[selectedUpgrade].click();
   }
 
+  if (
+    startOverlay &&
+    startOverlay.style.display === 'flex' &&
+    ui.handleKey(e)
+) {
+    e.preventDefault();
+    return;
+}
+
   if (paused && ui.handleKey(e)) {
     e.preventDefault();
     return;

@@ -3,6 +3,9 @@
     constructor(documentRef, state) {
       this.document = documentRef;
       this.state = state;
+
+      this.menuButtons = [];
+    this.menuSelected = 0;
     }
 
     updateHud(hpEl, lvlEl, xpEl) {

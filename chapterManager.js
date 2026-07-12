@@ -268,6 +268,17 @@ document.body.appendChild(dmp);
 
 start.style.display = 'none';
 
+const showDmp = !sessionStorage.getItem('dmpShown');
+
+if (!showDmp) {
+    dmp.remove();
+    start.style.display = 'flex';
+    loadCharacterList();
+    return;
+}
+
+sessionStorage.setItem('dmpShown','1');
+
 let dmpClosed = false;
 
 function closeDmp(){
@@ -319,6 +330,12 @@ document.addEventListener('keydown',closeDmp,{once:true});
         '<div class="title-menu"><h1>Modo Infinity</h1><p>Selecciona un personaje para comenzar</p><div id="menuMsg" class="menu-msg">' + menuMessage + '</div><div class="character-grid">' + characterButtons + '</div><button id="backBtn">Volver</button><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label></div>';
       document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
       document.getElementById('volumeSlider').oninput = e => { soundSettings.volume = Number(e.target.value) / 100; window.saveSoundSettings(); };
+
+      ui.setMenu([
+    ...document.querySelectorAll('.char-card'),
+    document.getElementById('backBtn')
+]);
+
       if (!characters.length) {
         loadCharacterList().then(() => renderStartMenu('character')).catch(() => renderStartMenu('character'));
         return;
@@ -435,6 +452,7 @@ document.getElementById('creditsBtn').onclick = () => {
 };
 
 document.getElementById('soundBtn').onclick = () => {
+  
   soundSettings.enabled = !soundSettings.enabled;
   window.saveSoundSettings();
   renderStartMenu(view);
@@ -444,6 +462,16 @@ document.getElementById('volumeSlider').oninput = e => {
   soundSettings.volume = Number(e.target.value) / 100;
   window.saveSoundSettings();
 };
+
+ui.setMenu([
+    document.getElementById('historyBtn'),
+    document.getElementById('infinityBtn'),
+    document.getElementById('startBtn'),
+    document.getElementById('continueBtn'),
+    document.getElementById('ranksBtn'),
+    document.getElementById('creditsBtn'),
+    document.getElementById('soundBtn')
+]);
 
 }
 
