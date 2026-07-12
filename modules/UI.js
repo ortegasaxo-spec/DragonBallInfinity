@@ -11,6 +11,55 @@
       xpEl.textContent = `${this.state.xp}/${this.state.xpNeed}`;
     }
 
+    setMenu(buttons){
+    this.menuButtons = buttons || [];
+    this.menuSelected = 0;
+
+    this.menuButtons.forEach((b,i)=>{
+        b.style.outline = i===0 ? '3px solid yellow' : '';
+    });
+}
+
+moveMenu(dir){
+    if(!this.menuButtons.length) return;
+
+    this.menuButtons[this.menuSelected].style.outline='';
+
+    this.menuSelected =
+        (this.menuSelected + dir + this.menuButtons.length) %
+        this.menuButtons.length;
+
+    this.menuButtons[this.menuSelected].style.outline='3px solid yellow';
+}
+
+activateMenu(){
+    if(this.menuButtons[this.menuSelected]){
+        this.menuButtons[this.menuSelected].click();
+    }
+}
+
+handleKey(e){
+    if(!this.menuButtons.length) return false;
+
+    switch(e.key){
+        case 'ArrowUp':
+        case 'ArrowLeft':
+            this.moveMenu(-1);
+            return true;
+
+        case 'ArrowDown':
+        case 'ArrowRight':
+            this.moveMenu(1);
+            return true;
+
+        case 'Enter':
+            this.activateMenu();
+            return true;
+    }
+
+    return false;
+}
+
     renderPauseMenu(pauseOverlay, levelUpEl, getSuperTechLabel, getRunTime) {
       if (!pauseOverlay) return;
     const techSummary = Object.entries(this.state.superTechLevels)
@@ -92,18 +141,11 @@ techSummary +
       this.document.getElementById('resumeBtn').onclick = this.state.togglePauseMenu;
       this.document.getElementById('saveBtn').onclick = this.state.saveGame;
       this.document.getElementById('titleBtn').onclick = this.state.exitToTitle;
-      const buttons = [
+    this.setMenu([
     this.document.getElementById('resumeBtn'),
     this.document.getElementById('saveBtn'),
     this.document.getElementById('titleBtn')
-];
-
-this.menuButtons = buttons;
-this.menuSelected = 0;
-
-buttons.forEach((b,i)=>{
-    b.style.outline = i===0 ? '3px solid yellow' : '';
-});
+]); 
     }
   }
 

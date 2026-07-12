@@ -2463,6 +2463,12 @@ document.addEventListener('keydown', e => {
     bs.forEach((b, i) => { b.style.outline = i === selectedUpgrade ? '3px solid yellow' : ''; });
     if (e.key === 'Enter' && bs[selectedUpgrade]) bs[selectedUpgrade].click();
   }
+
+  if (paused && ui.handleKey(e)) {
+    e.preventDefault();
+    return;
+}
+
 });
 
 
