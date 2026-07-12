@@ -161,8 +161,8 @@
           ctx.rotate(Math.atan2(d.vy, d.vx));
           ctx.shadowBlur = 18;
           ctx.shadowColor = '#ffffff';
-          if (discoImg && discoImg.complete && discoImg.naturalWidth) ctx.drawImage(discoImg, -24, -24, 48, 48);
-          else { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, 16, 0, Math.PI * 2); ctx.fill(); }
+          if (discoImg && discoImg.complete && discoImg.naturalWidth) ctx.drawImage(discoImg, -29, -29, 58, 58);
+          else { ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(0, 0, 19, 0, Math.PI * 2); ctx.fill(); }
           ctx.restore();
         }
       }
