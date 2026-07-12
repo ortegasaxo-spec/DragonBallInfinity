@@ -3,6 +3,8 @@
     constructor(documentRef, state) {
       this.document = documentRef;
       this.state = state;
+      this.menuButtons = [];
+      this.menuSelected = 0;
     }
 
     updateHud(hpEl, lvlEl, xpEl) {
@@ -92,6 +94,18 @@ techSummary +
       this.document.getElementById('resumeBtn').onclick = this.state.togglePauseMenu;
       this.document.getElementById('saveBtn').onclick = this.state.saveGame;
       this.document.getElementById('titleBtn').onclick = this.state.exitToTitle;
+      const buttons = [
+    this.document.getElementById('resumeBtn'),
+    this.document.getElementById('saveBtn'),
+    this.document.getElementById('titleBtn')
+];
+
+this.menuButtons = buttons;
+this.menuSelected = 0;
+
+buttons.forEach((b,i)=>{
+    b.style.outline = i===0 ? '3px solid yellow' : '';
+});
     }
   }
 
