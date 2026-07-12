@@ -1601,7 +1601,10 @@ if(superTechLevels.kamehameha > 0){
    }
    if(kiExplosionEffect){
      const age=now-kiExplosionEffect.createdAt;
-     kiExplosionEffect.radius=Math.min(kiExplosionEffect.maxRadius,10+age*0.12);
+     const progress = Math.min(age / 1000, 1);
+
+kiExplosionEffect.radius =
+    18 + (kiExplosionEffect.maxRadius - 18) * progress;
     queryEnemiesNear(kiExplosionEffect.x,kiExplosionEffect.y,kiExplosionEffect.radius+12,(e)=>{
        if(!e||e.dead) return false;
        const dx=e.x-kiExplosionEffect.x, dy=e.y-kiExplosionEffect.y;
@@ -1865,7 +1868,7 @@ dodonpaShots.push({
 }
          if(specialKey==='zamas' && now>=e.specialCooldownAt){
            e.specialCooldownAt=now+10000;
-          e.zamasHalo={startedAt:now,duration:4000,minSize:72,maxSize:Math.max(canvas.width,canvas.height)*1.08,damagePerSec:35,size:72,radius:36};
+          e.zamasHalo={startedAt:now,duration:4000,minSize:72,maxSize:Math.max(canvas.width,canvas.height)*0.75,damagePerSec:35,size:72,radius:36};
         }
         if(specialKey==='zamas' && e.zamasHalo){
           const halo=e.zamasHalo;
@@ -1875,7 +1878,7 @@ dodonpaShots.push({
           } else {
             const progress=elapsed/halo.duration;
             halo.size=halo.minSize+(halo.maxSize-halo.minSize)*progress;
-            halo.radius=halo.size/2;
+            halo.radius = halo.size * 0.30;
             const dx=player.x-e.x, dy=player.y-e.y;
             if(dx*dx+dy*dy<=(halo.radius+player.r)*(halo.radius+player.r)){
             if(!window.god){
@@ -1923,7 +1926,7 @@ dodonpaShots.push({
                     else if(p===3){for(let k=0;k<3*projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos(a)*(2+k),Math.sin(a)*(2+k),col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
                     else {for(let k=0;k<3*projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos((k-1)*0.4+a)*3,Math.sin((k-1)*0.4+a)*3,col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
                  } else spawnEnemyBullet(e.x,e.y,Math.cos(a)*4,Math.sin(a)*4,'#66ccff');
-                 e.cd=e.type==="boss"?90:90;
+                 e.cd=e.type==="boss"?30:90;
               }
            }
          }
