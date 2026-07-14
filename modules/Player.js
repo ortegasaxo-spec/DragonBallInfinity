@@ -14,15 +14,44 @@
     getHitbox(e) {
       if (!e) return { w: 0, h: 0, shape: 'rect' };
       if (e.type === 'boss') {
+
   const n = (e.bossName || '').toLowerCase();
 
-  // Ozaru mantiene su hitbox original
   if (n.includes('ozaru')) {
-    return { w: 320, h: 420, shape: 'ellipse' };
+    return {
+        w: (e.drawW || 0) * 0.75,
+        h: (e.drawH || 0) * 0.80,
+        shape: 'ellipse'
+    };
+}
+
+  let scale = 1;
+
+  if (
+      n === 'bills' ||
+      n === 'dyspo' ||
+      n === 'freezer' ||
+      n === 'freezer100' ||
+      n === 'goldenfreezer' ||
+      n === 'vegeta' ||
+      n === 'majinvegeta' ||
+      n === 'kefla'
+  ){
+      scale = 0.67;
   }
 
-  // Resto de bosses: mismo alto, mitad de ancho
-  return { w: 61.5, h: 158, shape: 'rect' };
+  if (
+      n === 'majinbuu' ||
+      n === 'guldo'
+  ){
+      scale = 0.5;
+  }
+
+  return {
+    w: (e.drawW || 0) * 0.715 * scale,
+    h: (e.drawH || 0) * 0.952 * scale,
+    shape: 'rect'
+};
 }
       const scale = 1.125;
       const cometScale = 4.5;

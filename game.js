@@ -976,6 +976,7 @@ function getCleanSprite(img){
  }catch(e){ cleanedSprites.set(img,img); return img; }
 }
 function drawCleanSprite(img,x,y,w,h){
+ 
  ctx.drawImage(getCleanSprite(img),x,y,w,h);
 }
 
