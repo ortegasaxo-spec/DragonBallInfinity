@@ -2746,21 +2746,35 @@ document.addEventListener('keydown',e=>{
 
 let ranks = JSON.parse(localStorage.getItem(RANK_KEY) || "[]");
 
-     ranks.push({
-       name: initials || "AAA",
-       lvl: lvl,
-       kills: kills,
-       time: getSurvivalSeconds(),
-       build: getBuildText()
-     });
+     const zenis = kills;
 
-     ranks.sort((a,b)=>
-       (b.lvl-a.lvl) ||
-       (b.kills-a.kills) ||
-       (b.time-a.time)
-     );
+let bonus = 0;
 
-     localStorage.setItem(RANK_KEY, JSON.stringify(ranks.slice(0,10)));
+if (selectedDifficulty === "hard") {
+    bonus = Math.floor(zenis * 0.20);
+}
+else if (selectedDifficulty === "hardcore") {
+    bonus = Math.floor(zenis * 0.50);
+}
+
+const totalZenis = zenis + bonus;
+
+ranks.push({
+    name: initials || "AAA",
+    lvl: lvl,
+    zenis: totalZenis,
+    bonus: bonus,
+    time: getSurvivalSeconds(),
+    build: getBuildText()
+});
+
+ranks.sort((a,b)=>
+    (b.lvl-a.lvl) ||
+    (b.zenis-a.zenis) ||
+    (b.time-a.time)
+);
+
+     localStorage.setItem(RANK_KEY, JSON.stringify(ranks.slice(0,7)));
 
      window.__rankSaved=true;
    }

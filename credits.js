@@ -19,21 +19,35 @@ gameOverImg.src = "assets/gameover.png";
 
   let ranks = JSON.parse(localStorage.getItem('survivorRanksV2') || '[]');
 
-  ranks.push({
+  const zenis = kills;
+
+let bonus = 0;
+
+if (selectedDifficulty === "hard") {
+    bonus = Math.floor(zenis * 0.20);
+}
+else if (selectedDifficulty === "hardcore") {
+    bonus = Math.floor(zenis * 0.50);
+}
+
+const totalZenis = zenis + bonus;
+
+ranks.push({
     name: initials,
     lvl: lvl,
-    kills: kills,
+    zenis: totalZenis,
+    bonus: bonus,
     time: getSurvivalSeconds(),
     build: getBuildText()
-  });
+});
 
-  ranks.sort((a,b)=>
-      (b.lvl-a.lvl) ||
-      (b.kills-a.kills) ||
-      (b.time-a.time)
-  );
+ranks.sort((a,b)=>
+    (b.lvl-a.lvl) ||
+    (b.zenis-a.zenis) ||
+    (b.time-a.time)
+);
 
-  localStorage.setItem('survivorRanksV2', JSON.stringify(ranks.slice(0,10)));
+  localStorage.setItem('survivorRanksV2', JSON.stringify(ranks.slice(0,7)));
 
   window.__rankSaved = true;
 } 
@@ -108,6 +122,54 @@ ctx.fillText(
     115
 );
 
+const zenis = kills;
+
+let bonus = 0;
+let bonusText = "";
+
+if (selectedDifficulty === "hard") {
+    bonus = Math.floor(zenis * 0.20);
+    bonusText = "+20%";
+}
+else if (selectedDifficulty === "hardcore") {
+    bonus = Math.floor(zenis * 0.50);
+    bonusText = "+50%";
+}
+
+const totalZenis = zenis + bonus;
+
+ctx.fillStyle = "#FFD54F";
+ctx.font = "26px Arial";
+ctx.textAlign = "center";
+
+const x = canvas.width / 2;
+let y = 725;
+
+ctx.fillText(
+    `ZENIS: ${zenis}`,
+    x,
+    y
+);
+
+y += 38;
+
+ctx.fillText(
+    `BONUS DIFICULTAD (${bonusText || "+0%"}): +${bonus}`,
+    x,
+    y
+);
+
+y += 38;
+
+ctx.fillStyle = "#00FF66";
+
+ctx.fillText(
+    `TOTAL ZENIS: ${totalZenis}`,
+    x,
+    y
+);
+
+ctx.textAlign = "left";
 ctx.fillStyle = "white";
 ctx.font = "20px Arial";
 
@@ -115,7 +177,7 @@ ctx.font = "20px Arial";
     ctx.font='20px Arial';
   ranks.forEach((s, i) =>
     ctx.fillText(
-        `${i+1}. ${s.name}  L${s.lvl}  ☠${s.kills}`,
+        `${i+1}. ${s.name}  L${s.lvl}  Z${s.zenis ?? s.kills}`,
         canvas.width/2-120,
         240+i*28
     )
