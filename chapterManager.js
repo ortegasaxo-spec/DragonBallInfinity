@@ -85,12 +85,51 @@
   }
 
   function hasSavedGame(){
-    return !!localStorage.getItem(saveKey);
+    const data = readSaveData();
+    return !!(data && data.player);
+  }
+
+  function readSaveData(){
+    try { return JSON.parse(localStorage.getItem(saveKey) || 'null'); }
+    catch(e) { return null; }
+  }
+
+  function getPermanentSaveFields(data){
+    data = data || {};
+    return {
+      zenis: Number(data.zenis) || 0,
+      permanentUpgrades: data.permanentUpgrades || {},
+      unlockedCharacters: data.unlockedCharacters || [],
+      unlockedTechniques: data.unlockedTechniques || []
+    };
+  }
+
+  function getPermanentZenis(){
+    return getPermanentSaveFields(readSaveData()).zenis;
+  }
+
+  function addPermanentZenis(amount){
+    amount = Number(amount) || 0;
+    if (amount <= 0) return getPermanentZenis();
+    const data = readSaveData() || { version: 2 };
+    const permanentFields = getPermanentSaveFields(data);
+    data.version = data.version || 2;
+    data.zenis = permanentFields.zenis + amount;
+    data.permanentUpgrades = permanentFields.permanentUpgrades;
+    data.unlockedCharacters = permanentFields.unlockedCharacters;
+    data.unlockedTechniques = permanentFields.unlockedTechniques;
+    localStorage.setItem(saveKey, JSON.stringify(data));
+    return data.zenis;
   }
 
   function getSaveData(){
+    const permanentFields = getPermanentSaveFields(readSaveData());
     return {
       version: 2,
+      zenis: permanentFields.zenis,
+      permanentUpgrades: permanentFields.permanentUpgrades,
+      unlockedCharacters: permanentFields.unlockedCharacters,
+      unlockedTechniques: permanentFields.unlockedTechniques,
       player: {
         hp: player.hp,
         maxHp: player.maxHp,
@@ -117,10 +156,9 @@
   }
 
   function loadGame(){
-    let data;
-    try { data = JSON.parse(localStorage.getItem(saveKey) || 'null'); }
-    catch(e) { data = null; }
+    let data = readSaveData();
     if (!data) return false;
+    Object.assign(data, getPermanentSaveFields(data));
     resetGameState();
     Object.assign(player, data.player || {});
     Object.keys(upgradeLevels).forEach(k => upgradeLevels[k] = (data.upgradeLevels && data.upgradeLevels[k]) || 0);
@@ -231,6 +269,29 @@ if (pauseOverlay) pauseOverlay.style.display = 'none';
     }
   }
 
+  function renderShopPrice(item){
+    if (Array.isArray(item.preciosPorNivel)) {
+      const visiblePrices = item.preciosPorNivel.slice(0, Math.min(item.preciosPorNivel.length, item.nivelMaximo));
+      return visiblePrices.map((price, index) => {
+        const level = index + 1;
+        const suffix = index === visiblePrices.length - 1 && item.nivelMaximo > level ? '+' : '';
+        return 'N' + level + suffix + ': ' + price;
+      }).join(' | ');
+    }
+    return String(item.precio || 0);
+  }
+
+  function renderShopItems(category){
+    const data = (window.shopData && window.shopData[category]) || [];
+    if (!data.length) return '<div class="menu-empty">Sin elementos disponibles</div>';
+    return data.map(item =>
+      '<div class="shop-item">' +
+        '<div class="shop-item-head"><b>' + item.nombre + '</b><span>' + renderShopPrice(item) + ' Zenis</span></div>' +
+        '<p>' + item.descripcion + '</p>' +
+      '</div>'
+    ).join('');
+  }
+
   function initMenus(){
     uiElement = document.getElementById('ui');
     if (uiElement) uiElement.style.display = 'none';
@@ -312,6 +373,7 @@ document.addEventListener('keydown',closeDmp,{once:true});
     startOverlay.style.background = '#000';
     startOverlay.style.padding = '0 36px 34px 0';
     const canContinue = hasSavedGame();
+    const zenisBalance = getPermanentZenis();
     const ranks = renderRanksHtml();
     if (uiElement) uiElement.style.display = 'none';
 
@@ -509,13 +571,47 @@ console.log("2");
     return;
 }
 
+  if (view === 'shop') {
+      const activeShopCategory = window.activeShopCategory || 'upgrades';
+      startOverlay.style.alignItems = 'stretch';
+      startOverlay.style.justifyContent = 'stretch';
+      startOverlay.style.padding = '0';
+      startOverlay.style.background = '#000';
+      startOverlay.innerHTML =
+        '<div class="title-menu shop-menu">' +
+          '<h1>Tienda</h1>' +
+          '<div class="menu-msg">Zenis: ' + zenisBalance + '</div>' +
+          '<div class="shop-tabs">' +
+            '<button id="shopUpgradesBtn" class="' + (activeShopCategory === 'upgrades' ? 'active' : '') + '">Mejoras</button>' +
+            '<button id="shopTechniquesBtn" class="' + (activeShopCategory === 'techniques' ? 'active' : '') + '">Técnicas</button>' +
+            '<button id="shopSkinsBtn" class="' + (activeShopCategory === 'skins' ? 'active' : '') + '">Skins</button>' +
+          '</div>' +
+          '<div class="shop-list">' + renderShopItems(activeShopCategory) + '</div>' +
+          '<button id="backBtn">Volver</button>' +
+        '</div>';
+
+      document.getElementById('shopUpgradesBtn').onclick = () => { window.activeShopCategory = 'upgrades'; renderStartMenu('shop'); };
+      document.getElementById('shopTechniquesBtn').onclick = () => { window.activeShopCategory = 'techniques'; renderStartMenu('shop'); };
+      document.getElementById('shopSkinsBtn').onclick = () => { window.activeShopCategory = 'skins'; renderStartMenu('shop'); };
+      document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
+
+      ui.setMenu([
+        document.getElementById('shopUpgradesBtn'),
+        document.getElementById('shopTechniquesBtn'),
+        document.getElementById('shopSkinsBtn'),
+        document.getElementById('backBtn')
+      ]);
+
+      return;
+  }
+
 const modeButtons =
   '<div class="mode-section"><h2>Modo de juego</h2><div class="menu-actions"><button id="historyBtn">Historia</button><button id="infinityBtn">Infinity</button></div></div>';
 
 startOverlay.innerHTML =
   '<img src="assets/start_background.png" class="menu-bg"><div class="title-menu"><h1>DBZ Infinity</h1>' +
   modeButtons +
-  '<div id="menuMsg" class="menu-msg"></div><div class="menu-actions"><button id="startBtn">Nueva partida</button><button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button><button id="ranksBtn">Ver ranks</button><button id="creditsBtn">Créditos</button><button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button></div><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label></div>';
+  '<div class="menu-msg">Zenis: ' + zenisBalance + '</div><div id="menuMsg" class="menu-msg"></div><div class="menu-actions"><button id="startBtn">Nueva partida</button><button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button><button id="shopBtn">Tienda</button><button id="ranksBtn">Ver ranks</button><button id="creditsBtn">Créditos</button><button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button></div><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label></div>';
 
 document.getElementById('historyBtn').onclick = () => {
   selectedGameMode = 'story';
@@ -538,6 +634,11 @@ document.getElementById('startBtn').onclick = () => {
 
 document.getElementById('continueBtn').onclick = () => {
   if (!loadGame()) showMenuMessage('No hay partida guardada');
+};
+
+document.getElementById('shopBtn').onclick = () => {
+  window.activeShopCategory = 'upgrades';
+  renderStartMenu('shop');
 };
 
 document.getElementById('ranksBtn').onclick = () =>
@@ -568,6 +669,7 @@ ui.setMenu([
     document.getElementById('infinityBtn'),
     document.getElementById('startBtn'),
     document.getElementById('continueBtn'),
+    document.getElementById('shopBtn'),
     document.getElementById('ranksBtn'),
     document.getElementById('creditsBtn'),
     document.getElementById('soundBtn')
@@ -582,6 +684,8 @@ ui.setMenu([
     startNewGamePlus,
     exitToTitle,
     saveGame,
+    addPermanentZenis,
+    getPermanentZenis,
     loadGame,
     hasSavedGame,
     renderRanksHtml,

@@ -56,7 +56,17 @@ canvas{
 .rank-row{display:grid;grid-template-columns:54px 1fr;gap:4px 8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1)}
 .rank-row b{grid-row:span 2;color:#ffd35a}.rank-row span{font-size:14px}.rank-row em{font-size:12px;color:#bdd7ff;font-style:normal}
 .menu-empty,.menu-msg{min-height:18px;font-size:14px;color:#ffd35a}.pause-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}.pause-stats span{background:rgba(255,255,255,.1);padding:8px;border-radius:6px}.build-grid{display:grid;grid-template-columns:1fr auto;gap:8px 14px;text-align:left;margin-bottom:16px}.build-grid span{color:#c9d6ea}.build-grid b{color:#fff}
-@media (max-width:520px){.title-menu,.pause-card{padding:18px}.title-menu h1,.pause-card h2{font-size:28px}.pause-stats{grid-template-columns:1fr}.volume-row{display:block;text-align:left}.volume-row input{width:100%;max-width:100%;margin-top:8px}}
+.shop-menu{width:min(900px,calc(100vw - 32px));margin:auto!important;text-align:left!important}
+.shop-menu h1{text-align:left!important}
+.shop-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.shop-tabs button.active{background:#d59a1b;color:#111;border-color:#ffd35a}
+.shop-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 16px;max-height:min(58vh,560px);overflow:auto;padding-right:4px}
+.shop-item{border:1px solid rgba(255,255,255,.16);border-radius:8px;background:rgba(255,255,255,.06);padding:12px}
+.shop-item-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.shop-item-head b{color:#fff;font-size:16px;line-height:1.2}
+.shop-item-head span{color:#ffd35a;font-size:13px;text-align:right;line-height:1.25;white-space:normal}
+.shop-item p{margin:8px 0 0;color:#c9d6ea;font-size:13px;line-height:1.35}
+@media (max-width:520px){.title-menu,.pause-card{padding:18px}.title-menu h1,.pause-card h2{font-size:28px}.pause-stats{grid-template-columns:1fr}.volume-row{display:block;text-align:left}.volume-row input{width:100%;max-width:100%;margin-top:8px}.shop-tabs{grid-template-columns:1fr}.shop-list{grid-template-columns:1fr;max-height:52vh}.shop-item-head{display:block}.shop-item-head span{display:block;text-align:left;margin-top:6px}}
 
 #startOverlay .title-menu{margin:0;text-align:left}
 #startOverlay .title-menu h1{text-align:left}

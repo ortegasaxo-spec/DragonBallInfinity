@@ -49,6 +49,10 @@ ranks.sort((a,b)=>
 
   localStorage.setItem('survivorRanksV2', JSON.stringify(ranks.slice(0,7)));
 
+  if (window.chapterManager && window.chapterManager.addPermanentZenis) {
+    window.chapterManager.addPermanentZenis(totalZenis);
+  }
+
   window.__rankSaved = true;
 } 
     ctx.fillStyle='white';
