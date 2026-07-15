@@ -1009,8 +1009,33 @@ function warmMirroredSprite(img){
 }
 
 function getBossProjectileImage(e){
- const base=(e&&e.bossSequenceIndex!==undefined)?bossProjectileImages[(e.bossSequenceIndex)%bossProjectileImages.length]:bossProjectileImages[0];
- return (e&&e.type==='boss' && (e.specialKey||getBossSpecialKey(e.bossDisplayName||e.bossName||''))==='jiren')?jirenProjectileImg:base;
+  if(!e) return bossProjectileImages[0];
+
+  const bossName = e.bossDisplayName || e.bossName || "";
+
+  if(
+    bossName==="GOLDEN FREEZER" ||
+    bossName==="goku black" ||
+    bossName==="goku rose" ||
+    bossName==="ZAMAS"
+){
+    return jirenProjectileImg;
+}
+
+if(bossName==="Kefla"){
+    return bossProjectileImgA;
+}
+
+  if(
+    e.type==="boss" &&
+    (e.specialKey || getBossSpecialKey(bossName))==="jiren"
+  ){
+    return jirenProjectileImg;
+  }
+
+  return (e.bossSequenceIndex!==undefined)
+    ? bossProjectileImages[e.bossSequenceIndex % bossProjectileImages.length]
+    : bossProjectileImages[0];
 }
 
 function primeMirroredSprites(){
@@ -1917,13 +1942,50 @@ dodonpaShots.push({
               if(e.cd<=0){
                  if(e.type==="boss"){
                     const col=bossColors[e.bossName]||'#fff';
-                    const p=((e.bossSequenceIndex||0)%5);
+                    let p=((e.bossSequenceIndex||0)%5);
+
+if(e.bossDisplayName==="GOLDEN FREEZER"){
+    p=2;
+}
+
+else if(e.bossDisplayName==="Kefla"){
+    p=0;
+}
+
                     const projectileCount=multiplier>1?2:1;
                     const projectileType=multiplier>1?'jirenBall':'default';
                     const projectileImg=(multiplier>1)?jirenProjectileImg:getBossProjectileImage(e);
-                    if(p===0){for(let k=0;k<projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos(a)*4,Math.sin(a)*4,col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
+                    if(p===0){
+    for(let k=0;k<projectileCount;k++)
+        spawnEnemyBullet(e.x,e.y,Math.cos(a)*4,Math.sin(a)*4,col,{
+            type:projectileType,
+            radius:14,
+            img:projectileImg,
+            damagePerSec:multiplier>1?40:20
+        });
+}
                     else if(p===1){for(let k=-1;k<=1;k++) for(let q=0;q<projectileCount;q++) spawnEnemyBullet(e.x,e.y,Math.cos(a+k*0.3)*4,Math.sin(a+k*0.3)*4,col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
-                    else if(p===2){for(let k=0;k<4*projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos(k*.785)*3,Math.sin(k*.785)*3,col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
+                    else if(p===2){
+    const offsets=[-0.30,-0.10,0.10,0.30];
+
+    for(const offset of offsets){
+        for(let q=0;q<projectileCount;q++){
+            spawnEnemyBullet(
+                e.x,
+                e.y,
+                Math.cos(a+offset)*3,
+                Math.sin(a+offset)*3,
+                col,
+                {
+                    type:projectileType,
+                    radius:14,
+                    img:projectileImg,
+                    damagePerSec:multiplier>1?40:20
+                }
+            );
+        }
+    }
+}
                     else if(p===3){for(let k=0;k<3*projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos(a)*(2+k),Math.sin(a)*(2+k),col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
                     else {for(let k=0;k<3*projectileCount;k++) spawnEnemyBullet(e.x,e.y,Math.cos((k-1)*0.4+a)*3,Math.sin((k-1)*0.4+a)*3,col,{type:projectileType,radius:14,img:projectileImg,damagePerSec:multiplier>1?40:20});}
                  } else spawnEnemyBullet(e.x,e.y,Math.cos(a)*4,Math.sin(a)*4,'#66ccff');

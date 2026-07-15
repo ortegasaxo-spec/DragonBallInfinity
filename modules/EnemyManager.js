@@ -125,7 +125,7 @@ const baseHeight = clean.height;
 
 // Goku mide 158 px.
 // Los sprites de 1000 px deben medir un 10% más.
-const TARGET_BOSS_1000_HEIGHT = 174;
+const TARGET_BOSS_1000_HEIGHT = 200;
 
 // Escala basada en que un sprite de 1000 px pase a medir 174 px.
 const scale = TARGET_BOSS_1000_HEIGHT / 1000;
@@ -135,6 +135,14 @@ const drawH = baseHeight * scale;
 
 e.drawW = drawW;
 e.drawH = drawH;
+
+console.log(
+    e.bossName,
+    clean.width,
+    clean.height,
+    drawW,
+    drawH
+);
 
 drawSpriteFacing(
     bossImg,

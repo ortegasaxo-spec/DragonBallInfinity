@@ -37,14 +37,14 @@
       n === 'majinvegeta' ||
       n === 'kefla'
   ){
-      scale = 0.67;
+      scale = 0.65;
   }
 
   if (
       n === 'majinbuu' ||
       n === 'guldo'
   ){
-      scale = 0.5;
+      scale = 0.50;
   }
 
   return {
