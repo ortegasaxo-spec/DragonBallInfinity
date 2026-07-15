@@ -1,12 +1,12 @@
 (function(global){
   const saveKey = 'dbzInfinitySaveV1';
   const rankKey = 'survivorRanksV2';
-  let menuView = 'mode';
   let selectedGameMode = null;
   window.selectedDifficulty = 'normal';
   let selectedCharacter = null;
   let availableCharacters = [];
   let characterLoadPromise = null;
+  let characterFiles = [];
   let uiElement = null;
   const DEFAULT_CHARACTER_FILES = [
     'Goku.png',
@@ -19,6 +19,8 @@
     'Señal ultra instinto.png',
     'Ultra Instinto.png'
   ];
+  const DEFAULT_UNLOCKED_CHARACTERS = DEFAULT_CHARACTER_FILES.map(fileName => fileName.replace(/\.[^/.]+$/, ''));
+  characterFiles = DEFAULT_CHARACTER_FILES.slice();
 
   function parseCharacterLabel(fileName){
     return fileName.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ').trim();
@@ -31,8 +33,49 @@
     };
   }
 
+  function getCharacterFileName(file){
+    if (typeof file === 'string') return file;
+    if (file && typeof file.name === 'string') return file.name;
+    return null;
+  }
+
+  function buildSkinCharacterEntry(id){
+    return {
+      label: parseCharacterLabel(id),
+      src: encodeURI('assets/skins/' + id + '.png')
+    };
+  }
+
+  function buildUnlockedCharacterList(files){
+    const defaultById = {};
+    DEFAULT_CHARACTER_FILES.forEach(fileName => {
+      defaultById[fileName.replace(/\.[^/.]+$/, '')] = fileName;
+    });
+    (Array.isArray(files) ? files : []).forEach(file => {
+      const fileName = getCharacterFileName(file);
+      if (fileName) defaultById[fileName.replace(/\.[^/.]+$/, '')] = fileName;
+    });
+
+    const skinIds = ((window.shopData && window.shopData.skins) || []).map(item => item.id);
+    const unlockedCharacters = getPermanentSaveFields(readSaveData()).unlockedCharacters;
+    return unlockedCharacters.map(id => {
+      if (defaultById[id]) return buildCharacterEntry(defaultById[id]);
+      if (skinIds.includes(id)) return buildSkinCharacterEntry(id);
+      return null;
+    }).filter(Boolean);
+  }
+
+  function setAvailableCharactersFromUnlocked(){
+    availableCharacters = buildUnlockedCharacterList(characterFiles);
+    if (!selectedCharacter || !availableCharacters.some(ch => ch.src === selectedCharacter.src)) {
+      selectedCharacter = availableCharacters[0] || null;
+      window.selectedCharacter = selectedCharacter;
+    }
+    return availableCharacters;
+  }
+
   function loadCharacterList(){
-    if(characterLoadPromise) return characterLoadPromise;
+    if(characterLoadPromise) return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
     const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
     const validateResponse = response => { if(!response.ok) throw new Error('No se pudo cargar la lista de personajes'); return response.json(); };
     const manifestUrl = './assets/personajes/manifest.json';
@@ -45,26 +88,14 @@
     characterLoadPromise = loadFromManifest
       .catch(() => fetch(apiUrl).then(validateResponse))
       .then(files => {
-        availableCharacters = (Array.isArray(files) ? files : []).map(file => {
-          if (typeof file === 'string') return buildCharacterEntry(file);
-          if (file && typeof file.name === 'string') return buildCharacterEntry(file.name);
-          return null;
-        }).filter(Boolean);
-        if (!selectedCharacter && availableCharacters.length) {
-          selectedCharacter = availableCharacters[0];
-          window.selectedCharacter = selectedCharacter;
-        }
-        return availableCharacters;
+        characterFiles = Array.isArray(files) ? files : DEFAULT_CHARACTER_FILES.slice();
+        return characterFiles;
       })
       .catch(() => {
-        availableCharacters = DEFAULT_CHARACTER_FILES.map(buildCharacterEntry);
-        if (!selectedCharacter) {
-          selectedCharacter = availableCharacters[0];
-          window.selectedCharacter = selectedCharacter;
-        }
-        return availableCharacters;
+        characterFiles = DEFAULT_CHARACTER_FILES.slice();
+        return characterFiles;
       });
-    return characterLoadPromise;
+    return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
   }
 
   function formatTime(sec){
@@ -94,13 +125,33 @@
     catch(e) { return null; }
   }
 
+  function normalizeTechniqueLevels(unlockedTechniques){
+    if (Array.isArray(unlockedTechniques)) {
+      return unlockedTechniques.reduce((levels, id) => {
+        levels[id] = 1;
+        return levels;
+      }, {});
+    }
+    if (unlockedTechniques && typeof unlockedTechniques === 'object') {
+      return Object.keys(unlockedTechniques).reduce((levels, id) => {
+        levels[id] = Math.max(0, Number(unlockedTechniques[id]) || 0);
+        return levels;
+      }, {});
+    }
+    return {};
+  }
+
   function getPermanentSaveFields(data){
     data = data || {};
+    const unlockedCharacters = Array.isArray(data.unlockedCharacters) ? data.unlockedCharacters.slice() : [];
+    DEFAULT_UNLOCKED_CHARACTERS.forEach(id => {
+      if (!unlockedCharacters.includes(id)) unlockedCharacters.push(id);
+    });
     return {
       zenis: Number(data.zenis) || 0,
       permanentUpgrades: data.permanentUpgrades || {},
-      unlockedCharacters: data.unlockedCharacters || [],
-      unlockedTechniques: data.unlockedTechniques || []
+      unlockedCharacters,
+      unlockedTechniques: normalizeTechniqueLevels(data.unlockedTechniques)
     };
   }
 
@@ -120,6 +171,97 @@
     data.unlockedTechniques = permanentFields.unlockedTechniques;
     localStorage.setItem(saveKey, JSON.stringify(data));
     return data.zenis;
+  }
+
+  function buySkin(item){
+    if (!item || item.categoria !== 'skins') return false;
+    const data = readSaveData() || { version: 2 };
+    const permanentFields = getPermanentSaveFields(data);
+    if (permanentFields.unlockedCharacters.includes(item.id)) return false;
+    if (permanentFields.zenis < item.precio) {
+      showMenuMessage('Zenis insuficientes');
+      return false;
+    }
+    data.version = data.version || 2;
+    data.zenis = permanentFields.zenis - item.precio;
+    data.permanentUpgrades = permanentFields.permanentUpgrades;
+    data.unlockedCharacters = permanentFields.unlockedCharacters.concat(item.id);
+    data.unlockedTechniques = permanentFields.unlockedTechniques;
+    localStorage.setItem(saveKey, JSON.stringify(data));
+    renderStartMenu('shop');
+    showMenuMessage('Skin comprada');
+    return true;
+  }
+
+  function getPermanentUpgradeLevel(item){
+    const permanentUpgrades = getPermanentSaveFields(readSaveData()).permanentUpgrades;
+    return Math.max(0, Number(permanentUpgrades[item.id]) || 0);
+  }
+
+  function getNextUpgradePrice(item, currentLevel){
+    if (!item || !Array.isArray(item.preciosPorNivel) || !item.preciosPorNivel.length) return 0;
+    return item.preciosPorNivel[Math.min(currentLevel, item.preciosPorNivel.length - 1)];
+  }
+
+  function buyPermanentUpgrade(item){
+    if (!item || item.categoria !== 'upgrades') return false;
+    const data = readSaveData() || { version: 2 };
+    const permanentFields = getPermanentSaveFields(data);
+    const currentLevel = Math.max(0, Number(permanentFields.permanentUpgrades[item.id]) || 0);
+    if (currentLevel >= item.nivelMaximo) return false;
+    const price = getNextUpgradePrice(item, currentLevel);
+    if (permanentFields.zenis < price) {
+      showMenuMessage('Zenis insuficientes');
+      return false;
+    }
+    data.version = data.version || 2;
+    data.zenis = permanentFields.zenis - price;
+    data.permanentUpgrades = Object.assign({}, permanentFields.permanentUpgrades, {
+      [item.id]: currentLevel + 1
+    });
+    data.unlockedCharacters = permanentFields.unlockedCharacters;
+    data.unlockedTechniques = permanentFields.unlockedTechniques;
+    localStorage.setItem(saveKey, JSON.stringify(data));
+    renderStartMenu('shop');
+    showMenuMessage('Mejora comprada');
+    return true;
+  }
+
+  function getPermanentTechniqueLevel(item){
+    const unlockedTechniques = getPermanentSaveFields(readSaveData()).unlockedTechniques;
+    return Math.max(0, Number(unlockedTechniques[item.id]) || 0);
+  }
+
+  function getNextTechniquePrice(item, currentLevel){
+    if (!item) return 0;
+    if (Array.isArray(item.preciosPorNivel) && item.preciosPorNivel.length) {
+      return item.preciosPorNivel[Math.min(currentLevel, item.preciosPorNivel.length - 1)];
+    }
+    return Number(item.precio) || 0;
+  }
+
+  function buyPermanentTechnique(item){
+    if (!item || item.categoria !== 'techniques') return false;
+    const data = readSaveData() || { version: 2 };
+    const permanentFields = getPermanentSaveFields(data);
+    const currentLevel = Math.max(0, Number(permanentFields.unlockedTechniques[item.id]) || 0);
+    if (currentLevel >= item.nivelMaximo) return false;
+    const price = getNextTechniquePrice(item, currentLevel);
+    if (permanentFields.zenis < price) {
+      showMenuMessage('Zenis insuficientes');
+      return false;
+    }
+    data.version = data.version || 2;
+    data.zenis = permanentFields.zenis - price;
+    data.permanentUpgrades = permanentFields.permanentUpgrades;
+    data.unlockedCharacters = permanentFields.unlockedCharacters;
+    data.unlockedTechniques = Object.assign({}, permanentFields.unlockedTechniques, {
+      [item.id]: currentLevel + 1
+    });
+    localStorage.setItem(saveKey, JSON.stringify(data));
+    renderStartMenu('shop');
+    showMenuMessage('Técnica comprada');
+    return true;
   }
 
   function getSaveData(){
@@ -188,6 +330,34 @@
     return true;
   }
 
+  function applyPermanentUpgradesToNewGame(){
+    const permanentUpgrades = getPermanentSaveFields(readSaveData()).permanentUpgrades;
+    Object.keys(upgradeLevels).forEach(key => {
+      const max = upgradeMax[key] || 0;
+      const level = Math.max(0, Math.min(Number(permanentUpgrades[key]) || 0, max));
+      upgradeLevels[key] = level;
+    });
+
+    player.damage += upgradeLevels.damage;
+    player.speed += upgradeLevels.speed * 0.4;
+    player.maxHp += upgradeLevels.hp * 20;
+    player.hp += upgradeLevels.hp * 20;
+    player.bullets += upgradeLevels.bullets;
+  }
+
+  function applyPermanentTechniquesToNewGame(){
+    const unlockedTechniques = getPermanentSaveFields(readSaveData()).unlockedTechniques;
+    const techniqueDataById = {};
+    ((window.shopData && window.shopData.techniques) || []).forEach(item => {
+      techniqueDataById[item.id] = item;
+    });
+    Object.keys(superTechLevels).forEach(key => {
+      const item = techniqueDataById[key];
+      const max = item ? item.nivelMaximo : superTechMax;
+      superTechLevels[key] = Math.max(0, Math.min(Number(unlockedTechniques[key]) || 0, max));
+    });
+  }
+
   function startNewGame(){
     if (selectedGameMode === 'story') {
       window.gameMode = 'story';
@@ -204,6 +374,8 @@
     window.selectedCharacter = selectedCharacter;
     if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
     resetGameState();
+    applyPermanentUpgradesToNewGame();
+    applyPermanentTechniquesToNewGame();
     gameStarted = true;
     if (startOverlay) startOverlay.style.display = 'none';
     if (uiElement) uiElement.style.display = 'block';
@@ -269,27 +441,38 @@ if (pauseOverlay) pauseOverlay.style.display = 'none';
     }
   }
 
-  function renderShopPrice(item){
-    if (Array.isArray(item.preciosPorNivel)) {
-      const visiblePrices = item.preciosPorNivel.slice(0, Math.min(item.preciosPorNivel.length, item.nivelMaximo));
-      return visiblePrices.map((price, index) => {
-        const level = index + 1;
-        const suffix = index === visiblePrices.length - 1 && item.nivelMaximo > level ? '+' : '';
-        return 'N' + level + suffix + ': ' + price;
-      }).join(' | ');
-    }
-    return String(item.precio || 0);
-  }
-
   function renderShopItems(category){
-    const data = (window.shopData && window.shopData[category]) || [];
+    let data = (window.shopData && window.shopData[category]) || [];
     if (!data.length) return '<div class="menu-empty">Sin elementos disponibles</div>';
-    return data.map(item =>
-      '<div class="shop-item">' +
-        '<div class="shop-item-head"><b>' + item.nombre + '</b><span>' + renderShopPrice(item) + ' Zenis</span></div>' +
+    const unlockedCharacters = getPermanentSaveFields(readSaveData()).unlockedCharacters;
+    if (category === 'skins') {
+      data = data.map((item, index) => ({ item, index }))
+        .sort((a, b) => (a.item.precio - b.item.precio) || (a.index - b.index))
+        .map(entry => entry.item);
+    }
+    return data.map(item => {
+      const isSkin = category === 'skins';
+      const isUpgrade = category === 'upgrades';
+      const isTechnique = category === 'techniques';
+      const bought = isSkin && unlockedCharacters.includes(item.id);
+      const currentLevel = isUpgrade ? getPermanentUpgradeLevel(item) : 0;
+      const techniqueLevel = isTechnique ? getPermanentTechniqueLevel(item) : 0;
+      const isMax = isUpgrade && currentLevel >= item.nivelMaximo;
+      const isTechniqueMax = isTechnique && techniqueLevel >= item.nivelMaximo;
+      const priceText = isUpgrade
+        ? (isMax ? 'MAX' : getNextUpgradePrice(item, currentLevel) + ' Zenis')
+        : isTechnique
+          ? (isTechniqueMax ? (item.nivelMaximo === 1 ? 'Comprado' : 'MAX') : getNextTechniquePrice(item, techniqueLevel) + ' Zenis')
+          : (bought ? 'Comprado' : (item.precio || 0) + ' Zenis');
+      const levelText = isUpgrade ? '<em>Nivel ' + currentLevel + '/' + item.nivelMaximo + '</em>' : '';
+      const techniqueLevelText = isTechnique ? '<em>Nivel ' + techniqueLevel + '/' + item.nivelMaximo + '</em>' : '';
+      return '<div class="shop-item' + (bought || isMax || isTechniqueMax ? ' bought' : '') + '" data-shop-category="' + category + '" data-shop-id="' + item.id + '">' +
+        '<div class="shop-item-head"><b>' + item.nombre + '</b><span>' + priceText + '</span></div>' +
+        levelText +
+        techniqueLevelText +
         '<p>' + item.descripcion + '</p>' +
-      '</div>'
-    ).join('');
+      '</div>';
+    }).join('');
   }
 
   function initMenus(){
@@ -374,7 +557,6 @@ document.addEventListener('keydown',closeDmp,{once:true});
     startOverlay.style.padding = '0 36px 34px 0';
     const canContinue = hasSavedGame();
     const zenisBalance = getPermanentZenis();
-    const ranks = renderRanksHtml();
     if (uiElement) uiElement.style.display = 'none';
 
 
@@ -384,7 +566,7 @@ document.addEventListener('keydown',closeDmp,{once:true});
       startOverlay.style.justifyContent = 'stretch';
       startOverlay.style.padding = '0';
       startOverlay.style.background = '#000';
-      const characters = availableCharacters.slice(0, 9);
+      const characters = setAvailableCharactersFromUnlocked();
       const characterButtons = characters.length ? characters.map(ch =>
         '<button class="char-card' + (selectedCharacter && selectedCharacter.src === ch.src ? ' selected' : '') + '" data-src="' + ch.src + '" data-label="' + ch.label + '"><div class="char-img-wrap"><img src="' + ch.src + '" alt="' + ch.label + '"></div><span>' + ch.label + '</span></button>'
       ).join('') : '';
@@ -581,6 +763,7 @@ console.log("2");
         '<div class="title-menu shop-menu">' +
           '<h1>Tienda</h1>' +
           '<div class="menu-msg">Zenis: ' + zenisBalance + '</div>' +
+          '<div id="menuMsg" class="menu-msg"></div>' +
           '<div class="shop-tabs">' +
             '<button id="shopUpgradesBtn" class="' + (activeShopCategory === 'upgrades' ? 'active' : '') + '">Mejoras</button>' +
             '<button id="shopTechniquesBtn" class="' + (activeShopCategory === 'techniques' ? 'active' : '') + '">Técnicas</button>' +
@@ -594,6 +777,32 @@ console.log("2");
       document.getElementById('shopTechniquesBtn').onclick = () => { window.activeShopCategory = 'techniques'; renderStartMenu('shop'); };
       document.getElementById('shopSkinsBtn').onclick = () => { window.activeShopCategory = 'skins'; renderStartMenu('shop'); };
       document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
+      if (activeShopCategory === 'upgrades') {
+        document.querySelectorAll('.shop-item[data-shop-category="upgrades"]').forEach(card => {
+          card.onclick = () => {
+            if (card.classList.contains('bought')) return;
+            const item = ((window.shopData && window.shopData.upgrades) || []).find(upgrade => upgrade.id === card.dataset.shopId);
+            buyPermanentUpgrade(item);
+          };
+        });
+      }
+      if (activeShopCategory === 'techniques') {
+        document.querySelectorAll('.shop-item[data-shop-category="techniques"]').forEach(card => {
+          card.onclick = () => {
+            if (card.classList.contains('bought')) return;
+            const item = ((window.shopData && window.shopData.techniques) || []).find(technique => technique.id === card.dataset.shopId);
+            buyPermanentTechnique(item);
+          };
+        });
+      }
+      if (activeShopCategory === 'skins') {
+        document.querySelectorAll('.shop-item[data-shop-category="skins"]').forEach(card => {
+          card.onclick = () => {
+            const item = ((window.shopData && window.shopData.skins) || []).find(skin => skin.id === card.dataset.shopId);
+            buySkin(item);
+          };
+        });
+      }
 
       ui.setMenu([
         document.getElementById('shopUpgradesBtn'),
