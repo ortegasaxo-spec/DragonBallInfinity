@@ -27,13 +27,28 @@
         if (p.type === 'speed') window.techniquesManager.applyUpgrade('speed', () => player.speed += 0.2);
         if (p.type === 'rate') {}
         if (p.type === 'multi') window.techniquesManager.applyUpgrade('bullets', () => player.bullets++);
-        if (p.type === 'senzu') { player.hp = player.maxHp; xp = xpNeed; window.techniquesManager.levelUp(); }
+        if (p.type === 'senzu') {
+    if (window.selectedDifficulty === 'normal') {
+        player.hp = player.maxHp;
+    }
+    xp = xpNeed;
+    window.techniquesManager.levelUp();
+}
         if (p.type === 'dragonball') {
-          player.hp = player.maxHp;
-          dragonballCount++;
-          if (dragonballCount >= 7) { extraLives++; window.chapterManager.showMenuMessage('¡Vida extra concedida!'); }
-          window.techniquesManager.openSuperiorTechniqueMenu();
-        }
+
+    if (window.selectedDifficulty !== 'hardcore') {
+        player.hp = player.maxHp;
+    }
+
+    dragonballCount++;
+
+    if (dragonballCount >= 7) {
+        extraLives++;
+        window.chapterManager.showMenuMessage('¡Vida extra concedida!');
+    }
+
+    window.techniquesManager.openSuperiorTechniqueMenu();
+}
         powerUps.splice(i, 1);
       }
     }

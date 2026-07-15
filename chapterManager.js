@@ -3,6 +3,7 @@
   const rankKey = 'survivorRanksV2';
   let menuView = 'mode';
   let selectedGameMode = null;
+  window.selectedDifficulty = 'normal';
   let selectedCharacter = null;
   let availableCharacters = [];
   let characterLoadPromise = null;
@@ -375,14 +376,67 @@ document.addEventListener('keydown',closeDmp,{once:true});
 
       return;
     }
-   
+  
+    if (view === 'difficulty') {
+
+  startOverlay.style.alignItems = 'stretch';
+  startOverlay.style.justifyContent = 'stretch';
+  startOverlay.style.padding = '0';
+  startOverlay.style.background = '#000';
+
+  startOverlay.innerHTML =
+    '<div class="title-menu">' +
+      '<h1>Selecciona dificultad</h1>' +
+
+      '<button id="normalBtn">Normal</button>' +
+      '<button id="hardBtn">Difícil</button>' +
+      '<button id="hardcoreBtn">Hardcore</button>' +
+      '<button id="backBtn">Volver</button>' +
+
+      '<label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label>' +
+
+    '</div>';
+
+  document.getElementById('volumeSlider').oninput = e => {
+    soundSettings.volume = Number(e.target.value) / 100;
+    window.saveSoundSettings();
+  };
+
+  document.getElementById('backBtn').onclick = () => renderStartMenu('character');
+
+  document.getElementById('normalBtn').onclick = () => {
+    window.selectedDifficulty = 'normal';
+    startNewGame();
+};
+
+  document.getElementById('hardBtn').onclick = () => {
+    window.selectedDifficulty = 'hard';
+    startNewGame();
+};
+
+  document.getElementById('hardcoreBtn').onclick = () => {
+    window.selectedDifficulty = 'hardcore';
+    startNewGame();
+};
+
+  ui.setMenu([
+    document.getElementById('normalBtn'),
+    document.getElementById('hardBtn'),
+    document.getElementById('hardcoreBtn'),
+    document.getElementById('backBtn')
+  ]);
+
+  return;
+}
+
       document.querySelectorAll('.char-card').forEach(button => {
-        button.onclick = () => {
-          selectedCharacter = { label: button.dataset.label || 'Personaje', src: button.dataset.src };
-          window.selectedCharacter = selectedCharacter;
-          if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
-          startNewGame();
-        };
+      button.onclick = () => {
+  selectedCharacter = { label: button.dataset.label || 'Personaje', src: button.dataset.src };
+  window.selectedCharacter = selectedCharacter;
+  if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
+
+  renderStartMenu('difficulty');
+};  
       });
       return;
     }
@@ -409,6 +463,52 @@ console.log("2");
       return;
   }
 
+    if (view === 'difficulty') {
+
+    startOverlay.style.alignItems = 'stretch';
+    startOverlay.style.justifyContent = 'stretch';
+    startOverlay.style.padding = '0';
+    startOverlay.style.background = '#000';
+
+    startOverlay.innerHTML =
+        '<div class="title-menu">' +
+            '<h1>Selecciona dificultad</h1>' +
+
+            '<div class="menu-actions">' +
+                '<button id="normalBtn">Normal</button>' +
+                '<button id="hardBtn">Difícil</button>' +
+                '<button id="hardcoreBtn">Hardcore</button>' +
+                '<button id="backBtn">Volver</button>' +
+            '</div>' +
+
+        '</div>';
+
+    document.getElementById('normalBtn').onclick = () => {
+        selectedDifficulty = 'normal';
+        startNewGame();
+    };
+
+    document.getElementById('hardBtn').onclick = () => {
+        selectedDifficulty = 'hard';
+        startNewGame();
+    };
+
+    document.getElementById('hardcoreBtn').onclick = () => {
+        selectedDifficulty = 'hardcore';
+        startNewGame();
+    };
+
+    document.getElementById('backBtn').onclick = () => {
+    if(selectedGameMode === 'story'){
+        renderStartMenu('mode');
+    }else{
+        renderStartMenu('character');
+    }
+};
+
+    return;
+}
+
 const modeButtons =
   '<div class="mode-section"><h2>Modo de juego</h2><div class="menu-actions"><button id="historyBtn">Historia</button><button id="infinityBtn">Infinity</button></div></div>';
 
@@ -419,7 +519,7 @@ startOverlay.innerHTML =
 
 document.getElementById('historyBtn').onclick = () => {
   selectedGameMode = 'story';
-  startNewGame();
+  renderStartMenu('difficulty');
 };
 
 document.getElementById('infinityBtn').onclick = () => {
