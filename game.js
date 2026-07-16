@@ -1371,6 +1371,7 @@ function drawSceneOnContext(targetCtx,w,h){
 }
 
 function startKamehameha(boss){
+ if(window.gameMode !== 'story') return;
  if(kameActive || boss.kameTriggered) return; boss.kameTriggered=true;
  kameActive=true; paused=true;
  const ov=document.createElement('canvas'); ov.id='kameOverlay';
