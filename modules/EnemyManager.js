@@ -90,9 +90,6 @@ for(let i=0;i<enemies.length;i++){
 
         ctx.translate(e.x,e.y);
 
-        if(player.x!==e.x)
-            ctx.scale(player.x<e.x?-1:1,1);
-
         if(
             (e.specialKey||"").toLowerCase()==="zamas" &&
             e.zamasHalo &&
