@@ -19,7 +19,7 @@ let pauseMenuOpen=false;
 let initials="";
 document.addEventListener("keydown",e=>{
 
-console.log("TECLA", e.key, gameOver, initials);
+
 
  if(gameOver && initials.length<3 && /^[a-zA-Z]$/.test(e.key)){
    initials+=e.key.toUpperCase();
@@ -888,11 +888,11 @@ function buildEnemyCollisionGrid(){
     if(!e || e.dead) continue;
     addToCollisionGrid(grid, e);
   }
-console.log(
-    "Grid rebuilt",
-    enemies.length,
-    activeEnemyGridKeys.length
-);
+//console.log(
+//    "Grid rebuilt",
+//    enemies.length,
+//    activeEnemyGridKeys.length
+//);
   return grid;
 }
 let activeEnemyGrid={};
@@ -1077,33 +1077,34 @@ const keys={};
 onkeydown=e=>keys[e.key.toLowerCase()]=true;
 onkeyup=e=>keys[e.key.toLowerCase()]=false;
 
-// double-tap detection for dragon dash (left/right)
-document.addEventListener('keydown', e => {
-  const now = getCurrentTime();
-  const k = e.key.toLowerCase();
-  if ((k === 'a' || k === 'arrowleft')){
-    if (now - lastTapTime.left < DOUBLE_TAP_THRESHOLD && superTechLevels.dragonDash>0 && now>=dragonDashCooldownAt){
-      // trigger left dash
-      const dist = Math.round(canvas.width * DRAGON_DASH_DISTANCE_PCT);
-      const toX = Math.max(player.r, player.x - dist);
-      player.dashFromX = player.x; player.dashToX = toX; player.dashStartAt = now; player.dashUntil = now + DRAGON_DASH_DURATION;
-      player.invulnerableUntil = player.dashUntil;
-      dragonDashCooldownAt = now + DRAGON_DASH_COOLDOWN;
-      playerFacingLeft = true;
-    }
-    lastTapTime.left = now;
-  }
-  if ((k === 'd' || k === 'arrowright')){
-    if (now - lastTapTime.right < DOUBLE_TAP_THRESHOLD && superTechLevels.dragonDash>0 && now>=dragonDashCooldownAt){
-      const dist = Math.round(canvas.width * DRAGON_DASH_DISTANCE_PCT);
-      const toX = Math.min(canvas.width - player.r, player.x + dist);
-      player.dashFromX = player.x; player.dashToX = toX; player.dashStartAt = now; player.dashUntil = now + DRAGON_DASH_DURATION;
-      player.invulnerableUntil = player.dashUntil;
-      dragonDashCooldownAt = now + DRAGON_DASH_COOLDOWN;
-      playerFacingLeft = false;
-    }
-    lastTapTime.right = now;
-  }
+// Dragon Dash con ESPACIO
+document.addEventListener("keydown", e => {
+
+    if (e.code !== "Space") return;
+
+    const now = getCurrentTime();
+
+    if (
+        superTechLevels.dragonDash <= 0 ||
+        now < dragonDashCooldownAt
+    ) return;
+
+    const dist = Math.round(canvas.width * DRAGON_DASH_DISTANCE_PCT);
+
+    const toX = playerFacingLeft
+        ? Math.max(player.r, player.x - dist)
+        : Math.min(canvas.width - player.r, player.x + dist);
+
+    player.dashFromX = player.x;
+    player.dashToX = toX;
+    player.dashStartAt = now;
+    player.dashUntil = now + DRAGON_DASH_DURATION;
+
+    player.invulnerableUntil = player.dashUntil;
+    dragonDashCooldownAt = now + DRAGON_DASH_COOLDOWN;
+
+    e.preventDefault();
+
 });
 
 function getBossCycleForIndex(index){
@@ -1223,7 +1224,7 @@ function launchKamehameha(target){
     dead:false
   };
 
-  console.log("KAME CREADO", kamehamehaProjectile);
+
 
 }
 
@@ -1291,13 +1292,16 @@ function triggerExtraLife(){
  const duration=2200;
  const render=()=>{
    const t=getCurrentTime()-start;
-  drawSceneOnContext(octx,ov.width,ov.height);
+  octx.fillStyle = "black";
+octx.fillRect(0, 0, ov.width, ov.height);
    if(shenronImg && shenronImg.complete!==false){
-     const maxW=ov.width*0.7, maxH=ov.height*0.7;
-     const iw=shenronImg.naturalWidth||shenronImg.width||1, ih=shenronImg.naturalHeight||shenronImg.height||1;
-     const sc=Math.min(maxW/iw,maxH/ih);
-     const w=iw*sc, h=ih*sc;
-     octx.drawImage(shenronImg,(ov.width-w)/2,(ov.height-h)/2,w,h);
+   const maxW=ov.width*0.7, maxH=ov.height*0.7;
+const iw=shenronImg.naturalWidth||shenronImg.width||1;
+const ih=shenronImg.naturalHeight||shenronImg.height||1;
+const sc=Math.min(maxW/iw,maxH/ih);
+const w=iw*sc;
+const h=ih*sc;
+octx.drawImage(shenronImg,(ov.width-w)/2,(ov.height-h)/2,w,h);
    }
    if(t<duration) requestAnimationFrame(render);
   else { ov.style.transition='opacity 0.8s ease'; ov.style.opacity='0'; setTimeout(()=>{ if(ov.parentNode) ov.remove(); },800); paused=false; window.__spawnAcc = 0; }
@@ -1609,7 +1613,7 @@ if(superTechLevels.kamehameha > 0){
 
         if(target){
 
-          console.log("INTENTO LANZAR KAME", target);
+         
 
             launchKamehameha(target);
 
@@ -2200,7 +2204,7 @@ function renderHudLayer(now){
  lastHudUpdateAt=now;
  ui.updateHud(hpEl,lvlEl,xpEl);
  hudCtx.clearRect(0,0,hudCanvas.width,hudCanvas.height);
- console.log("HUD", currentBoss?.bossDisplayName, currentBoss?.hp);
+
  if(currentBoss){
    hudCtx.fillStyle='#111';
    hudCtx.fillRect(canvas.width*0.15,20,canvas.width*0.7,24);
@@ -2655,63 +2659,87 @@ function perfFrame(dt){
 }
 
 window.hitFlash=0;
-
 // ===== DEBUG COMMANDS =====
+
 window.god = false;
 window.speed10 = false;
-
-window.addEventListener("keydown", e=>{
-
-    if(e.key==="F6"){
-        window.god = !window.god;
-        console.log("INVULNERABILIDAD:", window.god);
-    }
-
-    if(e.key==="F7"){
-       window.speed10 = !window.speed10;
-
-gameTimeOrigin = getCurrentTime();
-realTimeOrigin = performance.now();
-
-window.gameSpeed = window.speed10 ? 10 : 1;
-
-console.log("FAST FORWARD x10:", window.speed10);
-        
-    }
-
-});
-
 window.showHitboxes = false;
 
-document.addEventListener("keydown", e => {
-    if (e.key === "F1") {
-        window.showHitboxes = !window.showHitboxes;
+window.addEventListener("keydown", e => {
+
+    if (e.key === "F6") {
+        window.god = !window.god;
         e.preventDefault();
     }
+
+    if (e.key === "F7") {
+
+        window.speed10 = !window.speed10;
+
+        gameTimeOrigin = getCurrentTime();
+        realTimeOrigin = performance.now();
+
+        window.gameSpeed = window.speed10 ? 10 : 1;
+
+        e.preventDefault();
+    }
+
 });
-function playerDamaged(){hitFlash=10;}
+
+document.addEventListener("keydown", e => {
+
+    if (e.key === "F1") {
+
+        window.showHitboxes = !window.showHitboxes;
+        e.preventDefault();
+
+    }
+
+});
+
+function playerDamaged(){
+    hitFlash = 10;
+}
+
 function enemyExplode(x,y){
- for(let i=0;i<20;i++) addParticle(x,y,(Math.random()-0.5)*6,(Math.random()-0.5)*6,50,Math.random()>0.5?'orange':'yellow');
+
+    for(let i=0;i<20;i++){
+
+        addParticle(
+            x,
+            y,
+            (Math.random()-0.5)*6,
+            (Math.random()-0.5)*6,
+            50,
+            Math.random()>0.5 ? "orange" : "yellow"
+        );
+
+    }
+
 }
 
 try{
- const h=document.getElementById('hud');
- if(h) h.style.display='none';
+
+    const hud = document.getElementById("hud");
+
+    if(hud) hud.style.display = "none";
+
 }catch(e){}
 
-window.addEventListener('load',()=>{
-  const hud=document.getElementById('hud');
-  if(hud) hud.style.display='none';
+window.addEventListener("load",()=>{
+
+    document.querySelectorAll("#hud,.hud").forEach(e=>e.style.display="none");
+
 });
 
-window.addEventListener('load',()=>{
- document.querySelectorAll('#hud,.hud').forEach(e=>e.style.display='none');
-});
+let cameraShake = 0;
 
-// v7 patch marker: force game over when HP reaches 0.
+function triggerKamehamehaFX(){
 
-let cameraShake=0;
-function triggerKamehamehaFX(){cameraShake=30; damageFlash=30;}
+    cameraShake = 30;
+    damageFlash = 30;
+
+}
 
 
 
@@ -2741,7 +2769,6 @@ document.addEventListener('keydown',e=>{
 
    if(!window.__rankSaved){
 
-    console.log("ENTER ->", initials);
 
      const RANK_KEY = "survivorRanksV2";
 
@@ -2784,7 +2811,7 @@ ranks.sort((a,b)=>
      window.__rankSaved=true;
    }
 
-   location.reload();
+   window.chapterManager.exitToTitle();
 
  }
 

@@ -46,8 +46,24 @@ canvas{
 .title-menu h1,.pause-card h2{margin:0 0 14px;font-size:34px;line-height:1.05;letter-spacing:0}
 .pause-card h3{margin:18px 0 10px;font-size:18px}
 .menu-actions{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0 14px}
-.title-menu button,.pause-card button{width:100%;margin:0;padding:12px 14px;border:1px solid rgba(255,255,255,.25);border-radius:6px;background:#17345c;color:white;font-size:16px;cursor:pointer}
-.title-menu button:hover,.pause-card button:hover{background:#245083}
+.title-menu button,.pause-card button{
+    width:100%;
+    margin:0;
+    padding:12px 14px;
+    min-height:72px;
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:6px;
+    background:#17345c;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    gap:2px;
+}.title-menu button:hover,.pause-card button:hover{background:#245083}
 .title-menu button:disabled{opacity:.45;cursor:not-allowed;background:#29313d}
 .volume-row{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:8px 0 14px;font-size:15px}
 .volume-row input{width:180px;max-width:55%}

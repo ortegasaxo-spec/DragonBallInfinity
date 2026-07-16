@@ -35,14 +35,10 @@
     window.techniquesManager.levelUp();
 }
         if (p.type === 'dragonball') {
-
-    if (window.selectedDifficulty !== 'hardcore') {
-        player.hp = player.maxHp;
-    }
-
     dragonballCount++;
 
-    if (dragonballCount >= 7) {
+    while (dragonballCount >= 7) {
+        dragonballCount -= 7;
         extraLives++;
         window.chapterManager.showMenuMessage('¡Vida extra concedida!');
     }

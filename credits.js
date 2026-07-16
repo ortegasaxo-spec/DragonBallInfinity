@@ -12,8 +12,7 @@ gameOverImg.src = "assets/gameover.png";
   }
 
   function renderGameOver(){
-    console.log("renderGameOver()");
-    ctx.fillStyle = 'black';
+       ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   if (!window.__rankSaved && initials.length === 3) {
 

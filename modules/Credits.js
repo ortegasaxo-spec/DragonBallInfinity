@@ -120,7 +120,6 @@ creditsMusic.volume = 1;
 
 function exitCredits(){
 
-    console.log("EXIT CREDITS");
 
 
     if(window.storyEndingCredits && window.storyEndingCredits()){
@@ -135,7 +134,6 @@ function exitCredits(){
 
 }
 
-    console.log("EXIT -> MENU");
 
     stop();
 
@@ -180,13 +178,12 @@ function begin(){
 
   
 
-  console.log("BEGIN CREDITS");
 
 
     running = true;
 
     window.storyCreditsFinished = false;
-    console.log("storyCreditsFinished reset");
+  
 
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -299,7 +296,7 @@ function update(now){
 
 function render(ctx){
 
-    console.log("RENDER CREDITS");
+  
 
     if(!running) return;
 
@@ -487,7 +484,7 @@ if(elapsed < 100){
     if(phase===1){
 
         const pair=HERO_PAIRS[pairIndex];
-        console.log(pairIndex, pair);
+      
 
         const left=heroSprites[pair[0]];
         const right=heroSprites[pair[1]];

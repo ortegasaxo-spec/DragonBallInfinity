@@ -75,28 +75,55 @@
   }
 
   function loadCharacterList(){
-    if(characterLoadPromise) return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
-    const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2500));
-    const validateResponse = response => { if(!response.ok) throw new Error('No se pudo cargar la lista de personajes'); return response.json(); };
-    const manifestUrl = './assets/personajes/manifest.json';
-    const apiUrl = './api/personajes';
-    const loadFromManifest = Promise.race([
-      fetch(manifestUrl),
-      timeout
+
+    if(characterLoadPromise)
+        return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
+
+    // Si se ejecuta desde file:// no intentamos hacer fetch.
+    if(location.protocol === "file:"){
+
+        characterFiles = DEFAULT_CHARACTER_FILES.slice();
+
+        characterLoadPromise = Promise.resolve(characterFiles);
+
+        return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
+
+    }
+
+    const timeout = new Promise((_, reject)=>
+        setTimeout(()=>reject(new Error("timeout")),2500)
+    );
+
+    const validateResponse = response=>{
+        if(!response.ok)
+            throw new Error("No se pudo cargar la lista de personajes");
+        return response.json();
+    };
+
+    const manifestUrl="./assets/personajes/manifest.json";
+    const apiUrl="./api/personajes";
+
+    const loadFromManifest=Promise.race([
+        fetch(manifestUrl),
+        timeout
     ]).then(validateResponse);
 
-    characterLoadPromise = loadFromManifest
-      .catch(() => fetch(apiUrl).then(validateResponse))
-      .then(files => {
-        characterFiles = Array.isArray(files) ? files : DEFAULT_CHARACTER_FILES.slice();
-        return characterFiles;
-      })
-      .catch(() => {
-        characterFiles = DEFAULT_CHARACTER_FILES.slice();
-        return characterFiles;
-      });
+    characterLoadPromise=loadFromManifest
+        .catch(()=>fetch(apiUrl).then(validateResponse))
+        .then(files=>{
+            characterFiles=Array.isArray(files)
+                ? files
+                : DEFAULT_CHARACTER_FILES.slice();
+            return characterFiles;
+        })
+        .catch(()=>{
+            characterFiles=DEFAULT_CHARACTER_FILES.slice();
+            return characterFiles;
+        });
+
     return characterLoadPromise.then(setAvailableCharactersFromUnlocked);
-  }
+
+}
 
   function formatTime(sec){
     sec = Math.max(0, sec | 0);
@@ -547,8 +574,6 @@ document.addEventListener('keydown',closeDmp,{once:true});
 
   function renderStartMenu(view='mode'){
 
-    console.log("renderStartMenu:", view);
-
     if (!startOverlay) return;
     startOverlay.style.display = 'flex';
     startOverlay.style.alignItems = 'flex-end';
@@ -559,8 +584,6 @@ document.addEventListener('keydown',closeDmp,{once:true});
     const zenisBalance = getPermanentZenis();
     if (uiElement) uiElement.style.display = 'none';
 
-
-    console.log("1");
     if (view === 'character') {
       startOverlay.style.alignItems = 'stretch';
       startOverlay.style.justifyContent = 'stretch';
@@ -586,7 +609,93 @@ document.addEventListener('keydown',closeDmp,{once:true});
         return;
       }
   
-    if (view === 'ranking') {
+
+      
+   
+  
+    
+
+      document.querySelectorAll('.char-card').forEach(button => {
+      button.onclick = () => {
+  selectedCharacter = { label: button.dataset.label || 'Personaje', src: button.dataset.src };
+  window.selectedCharacter = selectedCharacter;
+  if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
+
+  renderStartMenu('difficulty');
+};  
+      });
+      return;
+    }
+
+    
+ if (view === 'difficulty') {
+
+  startOverlay.style.alignItems = 'stretch';
+  startOverlay.style.justifyContent = 'stretch';
+  startOverlay.style.padding = '0';
+  startOverlay.style.background = '#000';
+
+  startOverlay.innerHTML =
+  '<div class="title-menu">' +
+
+    '<h1>Selecciona dificultad</h1>' +
+
+    '<button id="normalBtn">' +
+    '<div style="font-size:26px;font-weight:bold;">NORMAL</div>' +
+    '<div style="font-size:13px;color:#888;">+0% Z</div>' +
+    '</button>' +
+
+    '<button id="hardBtn">' +
+    '<div style="font-size:26px;font-weight:bold;">DIFÍCIL</div>' +
+    '<div style="font-size:13px;color:#ff9a00;font-weight:bold;">+20% Z</div>' +
+    '</button>' +
+
+    '<button id="hardcoreBtn">' +
+    '<div style="font-size:26px;font-weight:bold;">HARDCORE</div>' +
+    '<div style="font-size:13px;color:#ff9a00;font-weight:bold;">+50% Z</div>' +
+    '</button>' +
+
+    '<button id="backBtn">Volver</button>' +
+
+    '<label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' +
+      Math.round(soundSettings.volume * 100) +
+    '"></label>' +
+
+  '</div>';
+
+  document.getElementById('volumeSlider').oninput = e => {
+    soundSettings.volume = Number(e.target.value) / 100;
+    window.saveSoundSettings();
+  };
+
+  document.getElementById('backBtn').onclick = () => renderStartMenu('character');
+
+  document.getElementById('normalBtn').onclick = () => {
+    window.selectedDifficulty = 'normal';
+    startNewGame();
+  };
+
+  document.getElementById('hardBtn').onclick = () => {
+    window.selectedDifficulty = 'hard';
+    startNewGame();
+  };
+
+  document.getElementById('hardcoreBtn').onclick = () => {
+    window.selectedDifficulty = 'hardcore';
+    startNewGame();
+  };
+
+  ui.setMenu([
+    document.getElementById('normalBtn'),
+    document.getElementById('hardBtn'),
+    document.getElementById('hardcoreBtn'),
+    document.getElementById('backBtn')
+  ]);
+
+  return;
+}
+
+   if (view === 'ranking') {
 
       
 
@@ -619,139 +728,7 @@ document.addEventListener('keydown',closeDmp,{once:true});
       document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
 
       return;
-    }
-  
-    if (view === 'difficulty') {
-
-  startOverlay.style.alignItems = 'stretch';
-  startOverlay.style.justifyContent = 'stretch';
-  startOverlay.style.padding = '0';
-  startOverlay.style.background = '#000';
-
-  startOverlay.innerHTML =
-    '<div class="title-menu">' +
-      '<h1>Selecciona dificultad</h1>' +
-
-      '<button id="normalBtn">Normal</button>' +
-      '<button id="hardBtn">Difícil</button>' +
-      '<button id="hardcoreBtn">Hardcore</button>' +
-      '<button id="backBtn">Volver</button>' +
-
-      '<label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label>' +
-
-    '</div>';
-
-  document.getElementById('volumeSlider').oninput = e => {
-    soundSettings.volume = Number(e.target.value) / 100;
-    window.saveSoundSettings();
-  };
-
-  document.getElementById('backBtn').onclick = () => renderStartMenu('character');
-
-  document.getElementById('normalBtn').onclick = () => {
-    window.selectedDifficulty = 'normal';
-    startNewGame();
-};
-
-  document.getElementById('hardBtn').onclick = () => {
-    window.selectedDifficulty = 'hard';
-    startNewGame();
-};
-
-  document.getElementById('hardcoreBtn').onclick = () => {
-    window.selectedDifficulty = 'hardcore';
-    startNewGame();
-};
-
-  ui.setMenu([
-    document.getElementById('normalBtn'),
-    document.getElementById('hardBtn'),
-    document.getElementById('hardcoreBtn'),
-    document.getElementById('backBtn')
-  ]);
-
-  return;
-}
-
-      document.querySelectorAll('.char-card').forEach(button => {
-      button.onclick = () => {
-  selectedCharacter = { label: button.dataset.label || 'Personaje', src: button.dataset.src };
-  window.selectedCharacter = selectedCharacter;
-  if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
-
-  renderStartMenu('difficulty');
-};  
-      });
-      return;
-    }
-
-
-console.log("2");
-    
-  if (view === 'ranking') {
-      startOverlay.style.alignItems = 'stretch';
-      startOverlay.style.justifyContent = 'stretch';
-      startOverlay.style.padding = '0';
-      startOverlay.style.background = '#000';
-      startOverlay.innerHTML =
-        '<div class="title-menu" style="width:100vw;height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;">' +
-          '<h1>Ranking Mundial</h1>' +
-          '<div style="display:flex;align-items:center;justify-content:center;gap:40px;">' +
-            '<img src="assets/roshi.png" style="height:340px;image-rendering:pixelated;">' +
-            '<div class="ranking-list">' + renderRanksHtml() + '</div>' +
-            '<img src="assets/roshi.png" style="height:340px;transform:scaleX(-1);image-rendering:pixelated;">' +
-          '</div>' +
-          '<button id="backBtn">Volver</button>' +
-        '</div>';
-      document.getElementById('backBtn').onclick = () => renderStartMenu('mode');
-      return;
-  }
-
-    if (view === 'difficulty') {
-
-    startOverlay.style.alignItems = 'stretch';
-    startOverlay.style.justifyContent = 'stretch';
-    startOverlay.style.padding = '0';
-    startOverlay.style.background = '#000';
-
-    startOverlay.innerHTML =
-        '<div class="title-menu">' +
-            '<h1>Selecciona dificultad</h1>' +
-
-            '<div class="menu-actions">' +
-                '<button id="normalBtn">Normal</button>' +
-                '<button id="hardBtn">Difícil</button>' +
-                '<button id="hardcoreBtn">Hardcore</button>' +
-                '<button id="backBtn">Volver</button>' +
-            '</div>' +
-
-        '</div>';
-
-    document.getElementById('normalBtn').onclick = () => {
-        selectedDifficulty = 'normal';
-        startNewGame();
-    };
-
-    document.getElementById('hardBtn').onclick = () => {
-        selectedDifficulty = 'hard';
-        startNewGame();
-    };
-
-    document.getElementById('hardcoreBtn').onclick = () => {
-        selectedDifficulty = 'hardcore';
-        startNewGame();
-    };
-
-    document.getElementById('backBtn').onclick = () => {
-    if(selectedGameMode === 'story'){
-        renderStartMenu('mode');
-    }else{
-        renderStartMenu('character');
-    }
-};
-
-    return;
-}
+    }  
 
   if (view === 'shop') {
       const activeShopCategory = window.activeShopCategory || 'upgrades';

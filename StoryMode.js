@@ -284,7 +284,6 @@ setTimeout(() => {
 
 function finishPresentation(){
 
-    console.log("FINISH PRESENTATION 1");
 
     if(!storyOverlay || !storyImage) return restoreGameControl();
 
@@ -293,7 +292,6 @@ function finishPresentation(){
 
     storyResumeTimeoutId = setTimeout(() => {
 
-        console.log("FINISH PRESENTATION 2");
 
         storyResumeTimeoutId = 0;
 
@@ -307,8 +305,6 @@ function finishPresentation(){
         }
 
         restoreGameControl();
-
-        console.log("FINISH PRESENTATION 3");
 
         if(chapterRuntime){
             chapterRuntime.inPresentation = false;
@@ -472,7 +468,7 @@ chapterRuntime = {
 function showStoryCompletedScreen(){
 
   paused = true;
-console.log("SHOW STORY COMPLETED", paused);
+
 
     const overlay = document.createElement("div");
 
@@ -523,9 +519,7 @@ console.log("SHOW STORY COMPLETED", paused);
 
     document.getElementById("newGamePlusBtn").onclick = () => {
 
-      console.log("CLICK NEW GAME+");
-
-      overlay.remove();
+          overlay.remove();
 
       chapterManager.startNewGamePlus();
 
@@ -533,7 +527,7 @@ console.log("SHOW STORY COMPLETED", paused);
 
     document.getElementById("returnTitleBtn").onclick = () => {
 
-        console.log("CLICK MENU");
+      
 
         overlay.remove();
 
