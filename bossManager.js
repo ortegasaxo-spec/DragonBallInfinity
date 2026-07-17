@@ -65,10 +65,14 @@ const CYCLE_HP_SCALE = 0.10;
 
 function getStoryLoopMultiplier(){
 
-    if(storyLoop <= 1)
-        return 1;
+    const loop = window.newGameManager
+    ? window.newGameManager.getSelectedCycle()
+    : 1;
 
-    return 1.10 + (storyLoop - 2) * 0.05;
+if (loop <= 1)
+    return 1;
+
+return 1.10 + (loop - 2) * 0.05;
 
 }
 
@@ -157,7 +161,11 @@ function getStoryLoopMultiplier(){
     const bossData = bossSequence.find(b => b.name === bossName);
     if (!bossData) return null;
     const sequenceIndex = bossSequence.indexOf(bossData);
-    const cycle = 0;
+    let cycle = 0;
+
+if (window.newGameManager) {
+    cycle = window.newGameManager.getSelectedCycle() - 1;
+}
     const bossCategory = kameBossNames.has(bossData.name) ? 'boss' : 'miniboss';
     const chapter = global.StoryMode && global.StoryMode.getCurrentChapter ? global.StoryMode.getCurrentChapter() : null;
     const hpMultiplier = bossCategory === 'boss'
@@ -205,6 +213,10 @@ function getStoryLoopMultiplier(){
     let sequenceIndex = getBossSequenceIndex(bossIndex);
     let bossData = bossSequence[sequenceIndex];
     let cycle = getBossCycleForIndex(bossIndex);
+
+if (window.newGameManager) {
+    cycle += window.newGameManager.getSelectedCycle() - 1;
+}
     if (boss) { bossCycle = cycle; bossSpawnedLevel = lvl; }
     let size = boss ? 35 : 10.5 + Math.random() * 14;
     let bossHp = boss ? getBossHp(sequenceIndex, cycle) : 0;

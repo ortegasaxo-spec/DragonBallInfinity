@@ -519,21 +519,23 @@ function showStoryCompletedScreen(){
 
     document.getElementById("newGamePlusBtn").onclick = () => {
 
-          overlay.remove();
+    window.newGameManager.advanceCycle();
 
-      chapterManager.startNewGamePlus();
+    overlay.remove();
+
+    chapterManager.startNewGamePlus();
 
 };
 
     document.getElementById("returnTitleBtn").onclick = () => {
 
-      
+    window.newGameManager.advanceCycle();
 
-        overlay.remove();
+    overlay.remove();
 
-        chapterManager.exitToTitle();
+    chapterManager.exitToTitle();
 
-    };
+};
 
 }
 

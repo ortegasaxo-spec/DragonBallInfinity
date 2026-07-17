@@ -1447,8 +1447,9 @@ function update(){
         Object.assign(e, {
           x: player.x + (Math.random()-0.5)*800,
           y: player.y + (Math.random()-0.5)*800,
-          hp: isBoss? window.bossManager.getBossHp(sequenceIndex, cycle) : 3 + lvl * 0.3,
-          maxHp: isBoss? window.bossManager.getBossHp(sequenceIndex, cycle) : 3 + lvl * 0.3,
+          hp: isBoss ? window.bossManager.getBossHp(sequenceIndex, cycle + Math.max(0, storyLoop - 1)) : 3 + lvl * 0.3,
+
+maxHp: isBoss ? window.bossManager.getBossHp(sequenceIndex, cycle + Math.max(0, storyLoop - 1)) : 3 + lvl * 0.3,
           size: isBoss? 35 : 10.5 + Math.random()*14,
           rot:0, rs:0, speed: isBoss?(0.5+cycle*0.08):(0.4+Math.random()*0.7), type: isBoss? 'boss':'asteroid', bossName: isBoss? window.bossManager.bossSequence[sequenceIndex].file : null, bossDisplayName: isBoss? window.bossManager.bossSequence[sequenceIndex].name : null, bossSequenceIndex: isBoss? sequenceIndex : null, bossCategory: isBoss?'boss':'miniboss', shoot: Math.random() < 0.25, cd:0, dead:false, rewardGiven:false, kameTriggered:false, dropType: isBoss? 'dragonball':'senzu'
         });

@@ -401,6 +401,7 @@
     window.selectedCharacter = selectedCharacter;
     if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
     resetGameState();
+    
     applyPermanentUpgradesToNewGame();
     applyPermanentTechniquesToNewGame();
     gameStarted = true;
@@ -410,6 +411,9 @@
     audioManager.applySettings(soundSettings);
     if (soundSettings.enabled) audioManager.playBgm();
     if (selectedGameMode === 'story' && window.StoryMode) window.StoryMode.start();
+    if (window.newGameManager) {
+    storyLoop = window.newGameManager.getSelectedCycle();
+}
   }
 
   function startNewGamePlus(){
@@ -621,7 +625,18 @@ document.addEventListener('keydown',closeDmp,{once:true});
   window.selectedCharacter = selectedCharacter;
   if (window.setPlayerSprite) window.setPlayerSprite(selectedCharacter.src);
 
-  renderStartMenu('difficulty');
+  if (
+    window.newGameManager &&
+    window.newGameManager.shouldShowCycleSelector('infinity')
+) {
+
+    renderStartMenu('cycle');
+
+} else {
+
+    renderStartMenu('difficulty');
+
+}
 };  
       });
       return;
@@ -730,6 +745,74 @@ document.addEventListener('keydown',closeDmp,{once:true});
       return;
     }  
 
+    if (view === 'cycle') {
+
+    startOverlay.style.alignItems = 'stretch';
+    startOverlay.style.justifyContent = 'stretch';
+    startOverlay.style.padding = '0';
+    startOverlay.style.background = '#000';
+
+    const cycles = window.newGameManager.getAvailableCycles();
+
+    const buttons = cycles.map(cycle => {
+
+        const bonus = (cycle - 1) * 10;
+
+        return '<button class="cycleBtn" data-cycle="' + cycle + '">' +
+            '<div style="font-size:26px;font-weight:bold;">' +
+window.newGameManager.getCycleName(cycle) +
+'</div>' +
+            '<div style="font-size:13px;color:#ff9a00;font-weight:bold;">+' + bonus + '% Z</div>' +
+        '</button>';
+
+    }).join('');
+
+    startOverlay.innerHTML =
+        '<div class="title-menu">' +
+            '<h1>Selecciona ciclo</h1>' +
+
+            buttons +
+
+            '<button id="backBtn">Volver</button>' +
+
+        '</div>';
+
+    document.querySelectorAll('.cycleBtn').forEach(btn => {
+
+        btn.onclick = () => {
+
+    window.newGameManager.setSelectedCycle(
+        Number(btn.dataset.cycle)
+    );
+
+    renderStartMenu('difficulty');
+
+};
+
+    });
+
+    document.getElementById('backBtn').onclick = () => {
+
+    if (selectedGameMode === 'infinity') {
+
+        renderStartMenu('character');
+
+    } else {
+
+        renderStartMenu();
+
+    }
+
+};
+    ui.setMenu([
+        ...document.querySelectorAll('.cycleBtn'),
+        document.getElementById('backBtn')
+    ]);
+
+    return;
+
+}
+
   if (view === 'shop') {
       const activeShopCategory = window.activeShopCategory || 'upgrades';
       startOverlay.style.alignItems = 'stretch';
@@ -797,26 +880,53 @@ const modeButtons =
 startOverlay.innerHTML =
   '<img src="assets/start_background.png" class="menu-bg"><div class="title-menu"><h1>DBZ Infinity</h1>' +
   modeButtons +
-  '<div class="menu-msg">Zenis: ' + zenisBalance + '</div><div id="menuMsg" class="menu-msg"></div><div class="menu-actions"><button id="startBtn">Nueva partida</button><button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button><button id="shopBtn">Tienda</button><button id="ranksBtn">Ver ranks</button><button id="creditsBtn">Créditos</button><button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button></div><label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' + Math.round(soundSettings.volume * 100) + '"></label></div>';
+  '<div class="menu-msg">Zenis: ' + zenisBalance + '</div>' +
+  '<div id="menuMsg" class="menu-msg"></div>' +
+  '<div class="menu-actions">' +
+    '<button id="continueBtn" ' + (canContinue ? '' : 'disabled') + '>Continuar partida</button>' +
+    '<button id="shopBtn">Tienda</button>' +
+    '<button id="ranksBtn">Ver ranks</button>' +
+    '<button id="creditsBtn">Créditos</button>' +
+    '<button id="soundBtn">Sonido: ' + (soundSettings.enabled ? 'ON' : 'OFF') + '</button>' +
+  '</div>' +
+  '<label class="volume-row">Volumen <input id="volumeSlider" type="range" min="0" max="100" value="' +
+    Math.round(soundSettings.volume * 100) +
+  '"></label></div>';
 
 document.getElementById('historyBtn').onclick = () => {
-  selectedGameMode = 'story';
-  renderStartMenu('difficulty');
+
+    selectedGameMode = 'story';
+
+    setAvailableCharactersFromUnlocked();
+
+if (!selectedCharacter) {
+    selectedCharacter = availableCharacters[0] || null;
+    window.selectedCharacter = selectedCharacter;
+}
+
+    if (
+        window.newGameManager &&
+        window.newGameManager.shouldShowCycleSelector('story')
+    ) {
+
+        renderStartMenu('cycle');
+
+    } else {
+
+        renderStartMenu('difficulty');
+
+    }
+
 };
 
 document.getElementById('infinityBtn').onclick = () => {
-  selectedGameMode = 'infinity';
-  renderStartMenu('character');
-};
 
-document.getElementById('startBtn').onclick = () => {
-  if (!selectedGameMode) selectedGameMode = 'story';
-  if (selectedGameMode === 'infinity' && !selectedCharacter) {
+    selectedGameMode = 'infinity';
     renderStartMenu('character');
-    return;
-  }
-  startNewGame();
+
 };
+ 
+
 
 document.getElementById('continueBtn').onclick = () => {
   if (!loadGame()) showMenuMessage('No hay partida guardada');
@@ -853,7 +963,6 @@ document.getElementById('volumeSlider').oninput = e => {
 ui.setMenu([
     document.getElementById('historyBtn'),
     document.getElementById('infinityBtn'),
-    document.getElementById('startBtn'),
     document.getElementById('continueBtn'),
     document.getElementById('shopBtn'),
     document.getElementById('ranksBtn'),
