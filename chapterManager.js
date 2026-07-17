@@ -865,11 +865,16 @@ window.newGameManager.getCycleName(cycle) +
       }
 
       ui.setMenu([
-        document.getElementById('shopUpgradesBtn'),
-        document.getElementById('shopTechniquesBtn'),
-        document.getElementById('shopSkinsBtn'),
-        document.getElementById('backBtn')
-      ]);
+
+    document.getElementById('shopUpgradesBtn'),
+    document.getElementById('shopTechniquesBtn'),
+    document.getElementById('shopSkinsBtn'),
+
+    ...document.querySelectorAll('.shop-item'),
+
+    document.getElementById('backBtn')
+
+]);
 
       return;
   }

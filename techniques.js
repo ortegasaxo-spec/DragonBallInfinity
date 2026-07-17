@@ -173,6 +173,11 @@ if (target){
    
 }
     });
+
+ ui.setMenu([
+        ...div.querySelectorAll('button')
+    ]);
+
   }
 
   function levelUp(){
@@ -211,7 +216,13 @@ if (target){
       setTimeout(() => autoBtn.click(), 50);
       break;
 }
+
     }
+
+ui.setMenu([
+    ...levelUpEl.querySelectorAll('button')
+]);
+
   }
 
   global.techniquesManager = {

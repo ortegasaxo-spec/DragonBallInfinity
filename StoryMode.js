@@ -173,6 +173,7 @@
 
   let active = false;
   let storyEndingCredits = false;
+  let inPresentation = false;
   let currentChapterIndex = -1;
   let storyOverlay = null;
   let storyImage = null;
@@ -284,8 +285,11 @@ setTimeout(() => {
 
 function finishPresentation(){
 
-
-    if(!storyOverlay || !storyImage) return restoreGameControl();
+if(!storyOverlay || !storyImage){
+    inPresentation = false;
+    restoreGameControl();
+    return;
+}    
 
     storyFadeTimeoutId = 0;
     storyImage.style.opacity = '0';
@@ -304,7 +308,17 @@ function finishPresentation(){
             );
         }
 
-        restoreGameControl();
+        if (window.gamepadManager) {
+    window.gamepadManager.consume("accept");
+    window.gamepadManager.consume("up");
+    window.gamepadManager.consume("down");
+    window.gamepadManager.consume("left");
+    window.gamepadManager.consume("right");
+    window.gamepadManager.consume("pause");
+}
+
+        inPresentation = false;
+restoreGameControl();
 
         if(chapterRuntime){
             chapterRuntime.inPresentation = false;
@@ -333,10 +347,12 @@ function finishPresentation(){
   }
 
   function presentChapter(chapter){
+     if (chapterRuntime && chapterRuntime.inPresentation) return;
     if(!chapter) return null;
     clearPresentation();
     ensureOverlay();
     pauseGameForStory();
+    inPresentation = true;
     if(chapterRuntime) chapterRuntime.inPresentation = true;
     const token = ++presentationToken;
     const chapterPath = resolveChapterPath(chapter.chapterImage);
@@ -580,6 +596,9 @@ window.clearStoryEndingCredits = () => { storyEndingCredits = false; };
     getCurrentChapter,
     isActive,
     tick,
+    isInPresentation(){
+    return inPresentation;
+},
     handleEnemyDefeat,
     handleRewardCollected
   };

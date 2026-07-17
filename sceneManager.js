@@ -28,6 +28,20 @@
     }
   }, true);
 
+  function pollGamepadPause(){
+
+    if(window.gamepadManager &&
+       window.gamepadManager.consume("pause")){
+
+        togglePauseMenu();
+
+    }
+
+    requestAnimationFrame(pollGamepadPause);
+}
+
+pollGamepadPause();
+
   global.sceneManager = {
     isLevelUpOpen,
     setPauseMenu,

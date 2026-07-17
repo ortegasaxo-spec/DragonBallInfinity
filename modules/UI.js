@@ -36,6 +36,15 @@ moveMenu(dir){
 }
 
 activateMenu(){
+
+    if(
+    window.StoryMode &&
+    window.StoryMode.isInPresentation &&
+    window.StoryMode.isInPresentation()
+){
+    return;
+}
+
     if(this.menuButtons[this.menuSelected]){
         this.menuButtons[this.menuSelected].click();
     }
@@ -61,6 +70,28 @@ handleKey(e){
     }
 
     return false;
+}
+
+handleGamepad(){
+
+    if(!this.menuButtons.length) return;
+
+    if(!window.gamepadManager) return;
+
+    if(window.gamepadManager.consume("up") ||
+       window.gamepadManager.consume("left")){
+        this.moveMenu(-1);
+    }
+
+    if(window.gamepadManager.consume("down") ||
+       window.gamepadManager.consume("right")){
+        this.moveMenu(1);
+    }
+
+    if(window.gamepadManager.consume("accept")){
+        this.activateMenu();
+    }
+
 }
 
     renderPauseMenu(pauseOverlay, levelUpEl, getSuperTechLabel, getRunTime) {

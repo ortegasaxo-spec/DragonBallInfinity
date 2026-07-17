@@ -703,6 +703,8 @@ const projectileManager=new window.ProjectileManager();
 const collisionSystem=new window.CollisionSystem();
 const renderer=new window.Renderer(canvas,ctx);
 const ui=new window.UI(document,{get player(){return player;},get lvl(){return lvl;},get xp(){return xp;},get xpNeed(){return xpNeed;},get upgradeLevels(){return upgradeLevels;},get upgradeMax(){return upgradeMax;},get superTechLevels(){return superTechLevels;},get dragonballCount(){return dragonballCount;},get extraLives(){return extraLives;},get kills(){return kills;},togglePauseMenu,saveGame,exitToTitle});
+
+window.ui = ui;
 // Ensure initial player sprite is normalized to SSJ box (if already loaded, do it now)
 if(playerImg.complete){
   try{
@@ -1471,7 +1473,37 @@ maxHp: isBoss ? window.bossManager.getBossHp(sequenceIndex, cycle + Math.max(0, 
     const t = Math.min(1, Math.max(0, (now - (player.dashStartAt||0)) / DRAGON_DASH_DURATION));
     player.x = (player.dashFromX || player.x) + ((player.dashToX || player.x) - (player.dashFromX || player.x)) * t;
   } else {
-    
+    let moveX = 0;
+let moveY = 0;
+
+// ===== TECLADO =====
+if (keys.w || keys["arrowup"]) moveY -= 1;
+if (keys.s || keys["arrowdown"]) moveY += 1;
+if (keys.a || keys["arrowleft"]) moveX -= 1;
+if (keys.d || keys["arrowright"]) moveX += 1;
+
+// ===== GAMEPAD =====
+if (window.gamepadManager) {
+
+    if (moveX === 0) moveX = window.gamepadManager.input.moveX;
+    if (moveY === 0) moveY = window.gamepadManager.input.moveY;
+
+    if (window.gamepadManager.input.left)  moveX = -1;
+    if (window.gamepadManager.input.right) moveX = 1;
+    if (window.gamepadManager.input.up)    moveY = -1;
+    if (window.gamepadManager.input.down)  moveY = 1;
+}
+
+if (moveX || moveY) {
+
+    const len = Math.hypot(moveX, moveY) || 1;
+
+    player.x += (moveX / len) * player.speed;
+    player.y += (moveY / len) * player.speed;
+
+    if (moveX !== 0)
+        playerFacingLeft = moveX < 0;
+}
   }
    if(now-lastShot>player.fireRate){ shoot(); lastShot=now; }
  });
@@ -2604,6 +2636,16 @@ function loop(){
   }
  window.bossManager.updateSpawner(dt);
  perfFrame(dt);
+
+ // Navegación de menús con gamepad
+if (window.startOverlay &&
+    window.startOverlay.style.display === 'flex'){
+    ui.handleGamepad();
+}
+
+if(paused){
+    ui.handleGamepad();
+}
  if(!gameStarted){
   if(gameOver){
    ctx.fillText("GAME OVER", canvas.width/2-50, canvas.height/2);
@@ -2621,6 +2663,9 @@ function loop(){
   requestAnimationFrame(loop);
   return;
  }
+
+
+
  // measure update/draw times for stress test
  if(window.__stress && window.__stress.enabled){ const su=performance.now(); profilePhase('Update',()=>update()); window.__stress.accUpdateTime += performance.now()-su; }
  else profilePhase('Update',()=>update());
