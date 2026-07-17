@@ -20,22 +20,30 @@ gameOverImg.src = "assets/gameover.png";
 
   const zenis = kills;
 
-let bonus = 0;
+  let difficultyBonus = 0;
 
 if (selectedDifficulty === "hard") {
-    bonus = Math.floor(zenis * 0.20);
+    difficultyBonus = Math.floor(zenis * 0.20);
 }
 else if (selectedDifficulty === "hardcore") {
-    bonus = Math.floor(zenis * 0.50);
+    difficultyBonus = Math.floor(zenis * 0.50);
 }
 
-const totalZenis = zenis + bonus;
+let ngBonus = 0;
+
+if (window.newGameManager) {
+    ngBonus = Math.floor(
+        zenis * ((window.newGameManager.getSelectedCycle() - 1) * 0.10)
+    );
+}
+
+const totalZenis = zenis + difficultyBonus + ngBonus;
 
 ranks.push({
     name: initials,
     lvl: lvl,
     zenis: totalZenis,
-    bonus: bonus,
+    bonus: difficultyBonus + ngBonus,
     time: getSurvivalSeconds(),
     build: getBuildText()
 });
@@ -127,19 +135,33 @@ ctx.fillText(
 
 const zenis = kills;
 
-let bonus = 0;
+let difficultyBonus = 0;
 let bonusText = "";
 
 if (selectedDifficulty === "hard") {
-    bonus = Math.floor(zenis * 0.20);
+    difficultyBonus = Math.floor(zenis * 0.20);
     bonusText = "+20%";
 }
 else if (selectedDifficulty === "hardcore") {
-    bonus = Math.floor(zenis * 0.50);
+    difficultyBonus = Math.floor(zenis * 0.50);
     bonusText = "+50%";
 }
 
-const totalZenis = zenis + bonus;
+let ngBonus = 0;
+let ngText = "+0%";
+
+if (window.newGameManager) {
+
+    const cycle = window.newGameManager.getSelectedCycle();
+
+    ngBonus = Math.floor(
+        zenis * ((cycle - 1) * 0.10)
+    );
+
+    ngText = "+" + ((cycle - 1) * 10) + "%";
+}
+
+const totalZenis = zenis + difficultyBonus + ngBonus;
 
 ctx.fillStyle = "#FFD54F";
 ctx.font = "26px Arial";
@@ -157,7 +179,15 @@ ctx.fillText(
 y += 38;
 
 ctx.fillText(
-    `BONUS DIFICULTAD (${bonusText || "+0%"}): +${bonus}`,
+    `BONUS NG (${ngText}): +${ngBonus}`,
+    x,
+    y
+);
+
+y += 38;
+
+ctx.fillText(
+    `BONUS DIFICULTAD (${bonusText || "+0%"}): +${difficultyBonus}`,
     x,
     y
 );
