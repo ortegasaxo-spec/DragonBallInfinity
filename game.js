@@ -1471,17 +1471,7 @@ maxHp: isBoss ? window.bossManager.getBossHp(sequenceIndex, cycle + Math.max(0, 
     const t = Math.min(1, Math.max(0, (now - (player.dashStartAt||0)) / DRAGON_DASH_DURATION));
     player.x = (player.dashFromX || player.x) + ((player.dashToX || player.x) - (player.dashFromX || player.x)) * t;
   } else {
-    let moveX=0, moveY=0;
-    if(keys.w||keys['arrowup']) moveY-=1;
-    if(keys.s||keys['arrowdown']) moveY+=1;
-    if(keys.a||keys['arrowleft']) moveX-=1;
-    if(keys.d||keys['arrowright']) moveX+=1;
-    if(moveX||moveY){
-      const len=Math.hypot(moveX,moveY)||1;
-      player.x+=moveX/len*player.speed;
-      player.y+=moveY/len*player.speed;
-      if(moveX!==0) playerFacingLeft=moveX<0;
-    }
+    
   }
    if(now-lastShot>player.fireRate){ shoot(); lastShot=now; }
  });
