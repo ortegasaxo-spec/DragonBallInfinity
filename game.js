@@ -54,7 +54,7 @@ function recordLongRunPhase(name, duration){
  }
 }
 
-window.__longRunAudit = window.__longRunAudit || {
+window.__longRunAudit = DEBUG && window.__longRunAudit || {
  enabled: false,
  startedAt: 0,
  lastSampleAt: 0,
@@ -483,7 +483,7 @@ window.printLongRunAudit = function(){
 
 // --- DEBUG: Stress test instrumentation and driver (active only when DEBUG===true) ---
 if (DEBUG) {
-  window.__stress = window.__stress || {
+  window.__stress = DEBUG && window.__stress || {
     enabled: false,
     intervalMs: 60000,
     durationMs: 30*60*1000,
@@ -535,7 +535,7 @@ if (DEBUG) {
 }
 // --- DEBUG: Audit instrumentation (active only when DEBUG===true) ---
 if (DEBUG) {
-  window.__audit = window.__audit || {
+  window.__audit = DEBUG && window.__audit || {
     enabled: false,
     intervalMs: 30000,
     timerId: null,
@@ -1081,6 +1081,7 @@ onkeyup=e=>keys[e.key.toLowerCase()]=false;
 
 // Dragon Dash con ESPACIO
 document.addEventListener("keydown", e => {
+    if (!DEBUG) return;
 
     if (e.code !== "Space") return;
 
@@ -2702,6 +2703,7 @@ window.speed10 = false;
 window.showHitboxes = false;
 
 window.addEventListener("keydown", e => {
+    if (!DEBUG) return;
 
     if (e.key === "F6") {
         window.god = !window.god;
@@ -2723,6 +2725,7 @@ window.addEventListener("keydown", e => {
 });
 
 document.addEventListener("keydown", e => {
+    if (!DEBUG) return;
 
     if (e.key === "F1") {
 

@@ -35,7 +35,7 @@
 
   function getCharacterFileName(file){
     if (typeof file === 'string') return file;
-    if (file && typeof file.name === 'string') return file.name;
+    if (file && typeof file.name.toUpperCase() === 'string') return file.name.toUpperCase();
     return null;
   }
 

@@ -209,8 +209,8 @@ ctx.font = "20px Arial";
     let ranks = JSON.parse(localStorage.getItem('survivorRanksV2') || '[]');
     ctx.font='20px Arial';
   ranks.forEach((s, i) =>
-    ctx.fillText(
-        `${i+1}. ${s.name}  L${s.lvl}  Z${s.zenis ?? s.kills}`,
+    ctx.fillText(String(
+        `${i+1}. ${s.name}  L${s.lvl}  Z${s.zenis ?? s.kills}`).toUpperCase(),
         canvas.width/2-120,
         240+i*28
     )
