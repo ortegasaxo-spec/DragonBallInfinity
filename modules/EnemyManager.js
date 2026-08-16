@@ -133,14 +133,6 @@ const drawH = baseHeight * scale;
 e.drawW = drawW;
 e.drawH = drawH;
 
-console.log(
-    e.bossName,
-    clean.width,
-    clean.height,
-    drawW,
-    drawH
-);
-
 drawSpriteFacing(
     bossImg,
     -drawW / 2,

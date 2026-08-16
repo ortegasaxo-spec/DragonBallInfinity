@@ -227,26 +227,4 @@ getCycleLabel(cycle = this.getSelectedCycle()) {
 
 global.newGameManager = new NewGameManager();
 
-window.ngUnlock = function(cycle = 2){
-
-    newGameManager.unlockInfinity();
-
-    newGameManager.unlockStory();
-
-    newGameManager.unlockCycle(cycle);
-
-    newGameManager.setSelectedCycle(cycle);
-
-    console.log(newGameManager.data);
-
-};
-
-window.ngReset = function(){
-
-    newGameManager.reset();
-
-    console.log(newGameManager.data);
-
-};
-
 })(window);
