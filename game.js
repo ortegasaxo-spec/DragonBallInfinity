@@ -37,7 +37,12 @@ let survivalStart=getCurrentTime();
 
 const canvas = document.getElementById("gameCanvas");
 const ctx=canvas.getContext('2d');
-canvas.width=innerWidth; canvas.height=innerHeight;
+function resizeGameCanvas(){
+  canvas.width=innerWidth;
+  canvas.height=innerHeight;
+}
+resizeGameCanvas();
+window.addEventListener('resize', resizeGameCanvas);
 const hpEl=document.getElementById('hp');
 const lvlEl=document.getElementById('lvl');
 const xpEl=document.getElementById('xp');

@@ -10,15 +10,15 @@
 
   class AudioManager {
     constructor() {
-      this.startMusic = new Audio('audio/db1.mp3');
-      this.bgm = new Audio('audio/db2.mp3');
+      this.startMusic = new Audio('audio/db1.MP3');
+      this.bgm = new Audio('audio/db2.MP3');
       this.kameSound = new Audio('assets/kame-volando.mpeg');
       this.boomSound = new Audio('assets/boom.mp3');
       this.startMusic.volume = 0.5;
       this.bgm.loop = true;
       this.bgm.volume = 0.5;
       this.startIndex = 0;
-      this.startPlaylist = ['audio/db1.mp3'];
+      this.startPlaylist = ['audio/db1.MP3'];
       this.startMusic.addEventListener('ended', () => {
         this.startIndex = (this.startIndex + 1) % this.startPlaylist.length;
         this.startMusic.src = this.startPlaylist[this.startIndex];
@@ -44,7 +44,9 @@
     }
 
     playBgm() {
-      this.bgm.play().catch(() => {});
+      this.bgm.play().catch(error => {
+        console.error('No se pudo reproducir la música de gameplay:', this.bgm.currentSrc || this.bgm.src, error);
+      });
     }
 
     pauseBgm() {
